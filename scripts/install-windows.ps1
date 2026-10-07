@@ -38,6 +38,12 @@ function Find-CodexApp {
     if (Test-Path -LiteralPath $CodexExeOverride -PathType Leaf) { return (Resolve-Path -LiteralPath $CodexExeOverride).Path }
     throw "Codex desktop executable not found: $CodexExeOverride"
   }
+
+  $runningApp = Get-Process -Name "Codex", "ChatGPT" -ErrorAction SilentlyContinue |
+    Where-Object { $_.Path -and (Test-Path -LiteralPath $_.Path -PathType Leaf) } |
+    Select-Object -First 1 -ExpandProperty Path
+  if ($runningApp) { return $runningApp }
+
   $package = Get-AppxPackage -Name "OpenAI.Codex" -ErrorAction SilentlyContinue |
     Sort-Object Version -Descending |
     Select-Object -First 1
