@@ -20,8 +20,9 @@ async function currentSettings() {
 
 async function broadcast(settings) {
   const tabs = await chrome.tabs.query({
-    url: ["https://chatgpt.com/*", "https://chat.openai.com/*"]
+    url: ["https://chatgpt.com/*"]
   });
+
   for (const tab of tabs) {
     if (!tab.id) continue;
     chrome.tabs.sendMessage(tab.id, {
