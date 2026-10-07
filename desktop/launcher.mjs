@@ -6,6 +6,7 @@ import path from "node:path";
 import { spawn, execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
+const DESKTOP_VERSION = "0.2.0";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, "..");
@@ -46,10 +47,13 @@ function candidateExecutables() {
       path.join(pf, "Codex", "Codex.exe"),
       path.join(pf, "ChatGPT", "ChatGPT.exe")
     );
+
     for (const name of ["Codex.exe", "ChatGPT.exe"]) {
       try {
         const found = execFileSync("where.exe", [name], { encoding: "utf8" })
-          .split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+          .split(/\r?\n/)
+          .map(x => x.trim())
+          .filter(Boolean);
         out.push(...found);
       } catch {}
     }
@@ -61,7 +65,12 @@ function candidateExecutables() {
       path.join(os.homedir(), "Applications", "Codex.app", "Contents", "MacOS", "Codex")
     );
   } else {
-    out.push("/usr/bin/codex", "/usr/local/bin/codex", "/opt/Codex/codex", "/opt/ChatGPT/chatgpt");
+    out.push(
+      "/usr/bin/codex",
+      "/usr/local/bin/codex",
+      "/opt/Codex/codex",
+      "/opt/ChatGPT/chatgpt"
+    );
   }
 
   return [...new Set(out)];
@@ -73,9 +82,12 @@ function resolveExe() {
     if (!fs.existsSync(p)) throw new Error(`Executable not found: ${p}`);
     return p;
   }
+
   const found = candidateExecutables().find(p => p && fs.existsSync(p));
   if (!found) {
-    throw new Error('Could not find ChatGPT/Codex automatically. Run again with --exe "FULL_PATH_TO_EXE".');
+    throw new Error(
+      'Could not find ChatGPT/Codex automatically. Run again with --exe "FULL_PATH_TO_EXE".'
+    );
   }
   return found;
 }
@@ -93,7 +105,7 @@ async function getFreePort() {
   });
 }
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function getTargets(port) {
   const res = await fetch(`http://127.0.0.1:${port}/json/list`);
@@ -104,7 +116,8 @@ async function getTargets(port) {
 async function evaluate(wsUrl, expression) {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(wsUrl);
-    const id = Math.floor(Math.random() * 1000000) + 1;
+    const id = Math.floor(Math.random() * 1_000_000) + 1;
+
     const timer = setTimeout(() => {
       try { ws.close(); } catch {}
       reject(new Error("CDP evaluate timed out"));
@@ -114,7 +127,11 @@ async function evaluate(wsUrl, expression) {
       ws.send(JSON.stringify({
         id,
         method: "Runtime.evaluate",
-        params: { expression, awaitPromise: false, returnByValue: true }
+        params: {
+          expression,
+          awaitPromise: false,
+          returnByValue: true
+        }
       }));
     });
 
@@ -122,8 +139,10 @@ async function evaluate(wsUrl, expression) {
       let msg;
       try { msg = JSON.parse(String(event.data)); } catch { return; }
       if (msg.id !== id) return;
+
       clearTimeout(timer);
       try { ws.close(); } catch {}
+
       if (msg.error) reject(new Error(msg.error.message || "Runtime.evaluate failed"));
       else resolve(msg.result);
     });
@@ -137,23 +156,43 @@ async function evaluate(wsUrl, expression) {
 
 function buildPayload() {
   const core = fs.readFileSync(path.join(root, "core", "rtl-engine.js"), "utf8");
-  const boot = `
+  const settings = JSON.stringify({
+    mode,
+    tables: true,
+    composer: true,
+    observe: true,
+    debug
+  });
+
+  // The sentinel check happens before redefining the engine. That makes the
+  // payload safe to evaluate repeatedly and lets a reload/new document receive
+  // a fresh injection even if Chromium reuses the same DevTools target id.
+  return `
 ;(() => {
   try {
-    if (globalThis.HebrewRTLEngine) {
-      globalThis.HebrewRTLEngine.start({
-        mode: ${JSON.stringify(mode)},
-        tables: true,
-        composer: true,
-        observe: true,
-        debug: ${debug ? "true" : "false"}
-      });
-      globalThis.__HEBREW_RTL_DESKTOP__ = true;
-      console.info("[Hebrew RTL] injected");
+    const version = ${JSON.stringify(DESKTOP_VERSION)};
+    const settings = ${settings};
+
+    if (
+      globalThis.__HEBREW_RTL_DESKTOP_VERSION__ === version &&
+      globalThis.HebrewRTLEngine
+    ) {
+      globalThis.HebrewRTLEngine.setOptions(settings);
+      return "already-active";
     }
-  } catch (e) { console.error("[Hebrew RTL] injection failed", e); }
+
+    ${core}
+
+    if (!globalThis.HebrewRTLEngine) return "engine-missing";
+    globalThis.HebrewRTLEngine.start(settings);
+    globalThis.__HEBREW_RTL_DESKTOP_VERSION__ = version;
+    console.info("[Hebrew RTL] injected", version);
+    return "injected";
+  } catch (e) {
+    console.error("[Hebrew RTL] injection failed", e);
+    return "error";
+  }
 })();`;
-  return core + boot;
 }
 
 async function main() {
@@ -168,7 +207,10 @@ async function main() {
   const child = spawn(exe, [
     "--remote-debugging-address=127.0.0.1",
     `--remote-debugging-port=${port}`
-  ], { detached: true, stdio: "ignore" });
+  ], {
+    detached: true,
+    stdio: "ignore"
+  });
   child.unref();
 
   let targets = [];
@@ -181,38 +223,57 @@ async function main() {
   }
 
   if (!targets.length) {
-    throw new Error("The app started but no DevTools targets were found. This build may block remote debugging.");
+    throw new Error(
+      "The app started but no DevTools targets were found. This build may block remote debugging."
+    );
   }
 
-  const injected = new Set();
+  const targetState = new Map();
 
-  async function injectNewTargets() {
+  async function refreshTargets() {
     let list;
-    try { list = await getTargets(port); }
-    catch { return false; }
+    try {
+      list = await getTargets(port);
+    } catch {
+      return false;
+    }
+
+    const liveKeys = new Set();
 
     for (const target of list) {
       if (!target.webSocketDebuggerUrl) continue;
       if (!["page", "webview", "iframe"].includes(target.type)) continue;
+
       const key = target.id || target.webSocketDebuggerUrl;
-      if (injected.has(key)) continue;
+      liveKeys.add(key);
+
       try {
-        await evaluate(target.webSocketDebuggerUrl, payload);
-        injected.add(key);
-        log(`Injected into: ${target.title || target.url || target.type}`);
+        const result = await evaluate(target.webSocketDebuggerUrl, payload);
+        const value = result?.result?.value || result?.result?.description || "ok";
+        if (targetState.get(key) !== value) {
+          targetState.set(key, value);
+          log(`${value}: ${target.title || target.url || target.type}`);
+        }
       } catch (err) {
-        if (debug) log(`Skipped target: ${err.message}`);
+        targetState.delete(key);
+        if (debug) log(`Target check failed: ${err.message}`);
       }
     }
+
+    for (const key of targetState.keys()) {
+      if (!liveKeys.has(key)) targetState.delete(key);
+    }
+
     return true;
   }
 
-  await injectNewTargets();
-  log("RTL engine is active. Keep this launcher open so new windows/reloads are also injected.");
+  await refreshTargets();
+
+  log("RTL engine is active. Keep this launcher open so reloads/new windows are re-checked.");
   log("Press Ctrl+C to stop the injector. Closing the injector does not close ChatGPT/Codex.");
 
   while (true) {
-    const alive = await injectNewTargets();
+    const alive = await refreshTargets();
     if (!alive) {
       log("App DevTools endpoint closed. Exiting.");
       break;
@@ -223,6 +284,8 @@ async function main() {
 
 main().catch(err => {
   console.error("\n[Hebrew RTL] ERROR:", err.message);
-  console.error("Tip: close ChatGPT/Codex completely and run again, or pass --exe with the full executable path.\n");
+  console.error(
+    'Tip: close ChatGPT/Codex completely and run again, or pass --exe with the full executable path.\n'
+  );
   process.exit(1);
 });

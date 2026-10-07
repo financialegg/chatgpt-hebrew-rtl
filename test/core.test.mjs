@@ -7,7 +7,10 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const code = fs.readFileSync(path.resolve(__dirname, "..", "core", "rtl-engine.js"), "utf8");
+const root = path.resolve(__dirname, "..");
+const corePath = path.join(root, "core", "rtl-engine.js");
+const desktopPath = path.join(root, "desktop", "launcher.mjs");
+const code = fs.readFileSync(corePath, "utf8");
 
 const context = { console };
 context.globalThis = context;
@@ -55,4 +58,28 @@ test("Off mode returns null", () => {
 test("Hebrew detection", () => {
   assert.equal(rtl.hasHebrew("MRVL היא מניה"), true);
   assert.equal(rtl.hasHebrew("MRVL stock"), false);
+});
+
+test("Known-direction rendering does not use unicode-bidi plaintext", () => {
+  assert.equal(code.includes('unicodeBidi = "plaintext"'), false);
+  assert.equal(code.includes('unicodeBidi = "isolate"'), true);
+});
+
+test("Original DOM state is snapshotted and restorable", () => {
+  assert.match(code, /const originals = new WeakMap\(\)/);
+  assert.match(code, /function restoreOriginal\(el\)/);
+});
+
+test("Feature toggles clear tables and composer state", () => {
+  assert.match(code, /clearTables\(\)/);
+  assert.match(code, /clearComposers\(\)/);
+  assert.match(code, /state\.options\.tables === false/);
+  assert.match(code, /state\.options\.composer === false/);
+});
+
+test("Desktop payload is reload-safe and does not rely on a permanent injected-target set", () => {
+  const desktop = fs.readFileSync(desktopPath, "utf8");
+  assert.equal(desktop.includes("const injected = new Set()"), false);
+  assert.match(desktop, /__HEBREW_RTL_DESKTOP_VERSION__/);
+  assert.match(desktop, /refreshTargets\(\)/);
 });

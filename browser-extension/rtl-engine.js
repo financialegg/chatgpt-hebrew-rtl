@@ -1,11 +1,11 @@
-/* Hebrew RTL Engine v0.1.1
+/* Hebrew RTL Engine v0.2.0
  * Hebrew-first, browser-safe RTL processing for ChatGPT/Codex surfaces.
  * Exposes globalThis.HebrewRTLEngine.
  */
 (function (global) {
   "use strict";
 
-  const VERSION = "0.1.1";
+  const VERSION = "0.2.0";
   const DEFAULTS = {
     mode: "smart",
     tables: true,
@@ -28,7 +28,7 @@
 
   const BLOCK_SELECTOR = [
     "p", "li", "blockquote", "h1", "h2", "h3", "h4", "h5", "h6",
-    "td", "th", "figcaption", "summary",
+    "figcaption", "summary",
     "[data-message-author-role] .markdown",
     "[data-message-author-role] .whitespace-pre-wrap",
     "[data-message-author-role] [class*='prose']"
@@ -48,7 +48,7 @@
   ].join(",");
 
   const CHROME_SELECTOR = [
-    "aside", "nav", "header", "footer",
+    "aside", "nav", "header",
     "[role='navigation']", "[role='menubar']", "[role='menu']", "[role='toolbar']"
   ].join(",");
 
@@ -57,6 +57,8 @@
     observer: null,
     inputHandler: null
   };
+
+  const originals = new WeakMap();
 
   function log(...args) {
     if (state.options.debug && global.console) console.debug("[HebrewRTL]", ...args);
@@ -88,6 +90,8 @@
     if (strong === "rtl") return "rtl";
     if (strong === "ltr" && !hasRTL(value)) return "ltr";
 
+    // A ticker/number/link may appear before the Hebrew sentence. If Hebrew
+    // exists anywhere in the paragraph, Hebrew remains the base direction.
     if (hasHebrew(value)) return "rtl";
     if (hasRTL(value)) return "rtl";
     return strong || "ltr";
@@ -97,11 +101,49 @@
     return !!(el && el.closest && el.closest(CHROME_SELECTOR));
   }
 
+  function isInsideComposer(el) {
+    return !!(el && el.closest && el.closest(COMPOSER_SELECTOR));
+  }
+
   function isExcluded(el) {
     if (!el || el.nodeType !== 1) return true;
     if (isAppChrome(el)) return true;
+    if (isInsideComposer(el)) return true;
     if (el.closest("pre, code, kbd, samp, script, style, svg, canvas")) return true;
     return false;
+  }
+
+  function snapshot(el) {
+    if (!el || originals.has(el)) return;
+    originals.set(el, {
+      hadDir: el.hasAttribute("dir"),
+      dir: el.getAttribute("dir"),
+      textAlign: el.style.getPropertyValue("text-align"),
+      textAlignPriority: el.style.getPropertyPriority("text-align"),
+      unicodeBidi: el.style.getPropertyValue("unicode-bidi"),
+      unicodeBidiPriority: el.style.getPropertyPriority("unicode-bidi"),
+      direction: el.style.getPropertyValue("direction"),
+      directionPriority: el.style.getPropertyPriority("direction")
+    });
+  }
+
+  function restoreProperty(style, name, value, priority) {
+    if (value) style.setProperty(name, value, priority || "");
+    else style.removeProperty(name);
+  }
+
+  function restoreOriginal(el) {
+    if (!el) return;
+    const original = originals.get(el);
+    if (!original) return;
+
+    if (original.hadDir) el.setAttribute("dir", original.dir ?? "");
+    else el.removeAttribute("dir");
+
+    restoreProperty(el.style, "text-align", original.textAlign, original.textAlignPriority);
+    restoreProperty(el.style, "unicode-bidi", original.unicodeBidi, original.unicodeBidiPriority);
+    restoreProperty(el.style, "direction", original.direction, original.directionPriority);
+    originals.delete(el);
   }
 
   function conversationRoots() {
@@ -124,12 +166,6 @@
     return out;
   }
 
-  function clearStyles(el) {
-    el.style.removeProperty("text-align");
-    el.style.removeProperty("unicode-bidi");
-    el.style.removeProperty("direction");
-  }
-
   function applyBlockDirection(el, explicitMode) {
     if (!el || isExcluded(el)) return;
     const mode = explicitMode || state.options.mode;
@@ -138,15 +174,20 @@
     const dir = directionOf(el.textContent || "", mode);
     if (!dir) return;
 
+    snapshot(el);
     el.setAttribute(MARK_BLOCK, dir);
     el.setAttribute("dir", dir);
     el.style.textAlign = dir === "rtl" ? "right" : "left";
-    el.style.unicodeBidi = "plaintext";
+
+    // We already determined the base direction. `plaintext` would ignore that
+    // direction and re-detect from the first strong character, so use isolate.
+    el.style.unicodeBidi = "isolate";
   }
 
   function forceLTR(root) {
     for (const el of qsaIncluding(root, LTR_SELECTOR)) {
-      if (isAppChrome(el)) continue;
+      if (isAppChrome(el) || isInsideComposer(el)) continue;
+      snapshot(el);
       el.setAttribute(MARK_LTR, "1");
       el.setAttribute("dir", "ltr");
       el.style.textAlign = "left";
@@ -154,9 +195,10 @@
     }
 
     for (const el of qsaIncluding(root, "a, bdi, time")) {
-      if (isAppChrome(el)) continue;
+      if (isAppChrome(el) || isInsideComposer(el)) continue;
       const dir = directionOf(el.textContent || "", "smart");
       if (!dir) continue;
+      snapshot(el);
       el.setAttribute(MARK_LTR, "1");
       el.setAttribute("dir", dir);
       el.style.unicodeBidi = "isolate";
@@ -166,20 +208,22 @@
   function processTables(root) {
     if (!state.options.tables) return;
     for (const table of qsaIncluding(root, "table")) {
-      if (isAppChrome(table)) continue;
+      if (isAppChrome(table) || isInsideComposer(table)) continue;
       const text = table.textContent || "";
       if (!hasRTL(text) && state.options.mode !== "force") continue;
 
+      snapshot(table);
       table.setAttribute(MARK_TABLE, "1");
       table.setAttribute("dir", "rtl");
       table.style.direction = "rtl";
 
       for (const cell of table.querySelectorAll("th, td")) {
         const dir = directionOf(cell.textContent || "", "smart") || "rtl";
+        snapshot(cell);
         cell.setAttribute(MARK_CELL, "1");
         cell.setAttribute("dir", dir);
         cell.style.textAlign = dir === "rtl" ? "right" : "left";
-        cell.style.unicodeBidi = "plaintext";
+        cell.style.unicodeBidi = "isolate";
       }
     }
   }
@@ -190,16 +234,19 @@
     const mode = state.options.mode === "force" ? "force" : "smart";
     const dir = directionOf(raw, mode);
 
+    snapshot(el);
     el.setAttribute(MARK_COMPOSER, "1");
+
     if (!dir) {
       el.setAttribute("dir", "auto");
       el.style.textAlign = "start";
-      el.style.unicodeBidi = "plaintext";
+      el.style.unicodeBidi = "normal";
       return;
     }
+
     el.setAttribute("dir", dir);
     el.style.textAlign = dir === "rtl" ? "right" : "left";
-    el.style.unicodeBidi = "plaintext";
+    el.style.unicodeBidi = "isolate";
   }
 
   function processComposers(root = document) {
@@ -234,6 +281,31 @@
       processRoot(root);
       processComposers(root);
     }
+  }
+
+  function clearMarked(selector, marker) {
+    if (typeof document === "undefined") return;
+    for (const el of document.querySelectorAll(selector)) {
+      el.removeAttribute(marker);
+      restoreOriginal(el);
+    }
+  }
+
+  function clearTables() {
+    clearMarked(`[${MARK_CELL}]`, MARK_CELL);
+    clearMarked(`[${MARK_TABLE}]`, MARK_TABLE);
+  }
+
+  function clearComposers() {
+    clearMarked(`[${MARK_COMPOSER}]`, MARK_COMPOSER);
+  }
+
+  function clearAll() {
+    if (typeof document === "undefined") return;
+    clearTables();
+    clearComposers();
+    clearMarked(`[${MARK_LTR}]`, MARK_LTR);
+    clearMarked(`[${MARK_BLOCK}]`, MARK_BLOCK);
   }
 
   function onMutations(mutations) {
@@ -274,67 +346,68 @@
     });
   }
 
+  function uninstallObserver() {
+    if (!state.observer) return;
+    state.observer.disconnect();
+    state.observer = null;
+  }
+
   function installInputListener() {
     if (state.inputHandler || typeof document === "undefined") return;
     state.inputHandler = onInput;
     document.addEventListener("input", state.inputHandler, true);
   }
 
-  function clearAll() {
-    if (typeof document === "undefined") return;
-
-    for (const el of document.querySelectorAll(`[${MARK_BLOCK}]`)) {
-      el.removeAttribute(MARK_BLOCK);
-      el.removeAttribute("dir");
-      clearStyles(el);
-    }
-    for (const el of document.querySelectorAll(`[${MARK_LTR}]`)) {
-      el.removeAttribute(MARK_LTR);
-      el.removeAttribute("dir");
-      clearStyles(el);
-    }
-    for (const table of document.querySelectorAll(`[${MARK_TABLE}]`)) {
-      table.removeAttribute(MARK_TABLE);
-      table.removeAttribute("dir");
-      clearStyles(table);
-    }
-    for (const cell of document.querySelectorAll(`[${MARK_CELL}]`)) {
-      cell.removeAttribute(MARK_CELL);
-      cell.removeAttribute("dir");
-      clearStyles(cell);
-    }
-    for (const el of document.querySelectorAll(`[${MARK_COMPOSER}]`)) {
-      el.removeAttribute(MARK_COMPOSER);
-      el.removeAttribute("dir");
-      clearStyles(el);
-    }
+  function uninstallInputListener() {
+    if (!state.inputHandler || typeof document === "undefined") return;
+    document.removeEventListener("input", state.inputHandler, true);
+    state.inputHandler = null;
   }
 
   function start(options = {}) {
     state.options = { ...state.options, ...options };
     if (typeof document === "undefined") return api;
+
+    if (state.options.observe) installObserver();
+    else uninstallObserver();
+
+    if (state.options.composer) installInputListener();
+    else {
+      uninstallInputListener();
+      clearComposers();
+    }
+
     process(document);
-    installObserver();
-    installInputListener();
     log("started", state.options);
     return api;
   }
 
   function setOptions(options = {}) {
+    const previous = { ...state.options };
     state.options = { ...state.options, ...options };
-    if (typeof document !== "undefined") process(document);
+
+    if (typeof document === "undefined") return { ...state.options };
+
+    if (previous.tables && state.options.tables === false) clearTables();
+    if (previous.composer && state.options.composer === false) {
+      clearComposers();
+      uninstallInputListener();
+    } else if (!previous.composer && state.options.composer === true) {
+      installInputListener();
+    }
+
+    if (previous.observe && state.options.observe === false) uninstallObserver();
+    else if (!previous.observe && state.options.observe === true) installObserver();
+
+    if (state.options.mode === "off") clearAll();
+    else process(document);
+
     return { ...state.options };
   }
 
   function stop() {
-    if (state.observer) {
-      state.observer.disconnect();
-      state.observer = null;
-    }
-    if (state.inputHandler && typeof document !== "undefined") {
-      document.removeEventListener("input", state.inputHandler, true);
-      state.inputHandler = null;
-    }
+    uninstallObserver();
+    uninstallInputListener();
     clearAll();
   }
 
