@@ -4,7 +4,7 @@
 Hebrew RTL for ChatGPT
 
 ## תיאור קצר
-מציג עברית בצורה תקינה מימין לשמאל ב-ChatGPT, בלי לשבור אנגלית, קוד, מספרים וטבלאות.
+מוסיף כללי כתיבה להודעות בעברית ומשפר תצוגת RTL ב-ChatGPT, בלי לשבור אנגלית, קוד, מספרים וטבלאות.
 
 ## קטגוריה
 Productivity
@@ -13,7 +13,7 @@ Productivity
 Hebrew
 
 ## תיאור מלא
-Hebrew RTL for ChatGPT מתקן את כיוון התצוגה והכתיבה בעברית בתוך ChatGPT.
+Hebrew RTL for ChatGPT משפר את הכתיבה והתצוגה של עברית בתוך ChatGPT.
 
 התוסף מיועד למשתמשים שכותבים בעברית ומשלבים בתוך הטקסט אנגלית, טיקרים, אחוזים, מספרים, קוד, נוסחאות וטבלאות.
 
@@ -24,13 +24,14 @@ Hebrew RTL for ChatGPT מתקן את כיוון התצוגה והכתיבה בע
 - תיקון טבלאות ורשימות.
 - התאמת כיוון שדה הכתיבה בזמן ההקלדה.
 - שלושה מצבים: חכם, RTL כפוי וכבוי.
+- כתיבה עברית חכמה: מוסיף להודעות בעברית 30 כללי ניסוח גלויים, כך שהתשובה תהיה קריאה גם עם טיקרים ומספרים. אפשר לכבות.
 - שמירת ההגדרות בדפדפן בלבד.
 
 פרטיות:
-העיבוד מתבצע מקומית בדפדפן. התוסף אינו שולח או שומר את תוכן השיחות, אינו מפעיל אנליטיקה ואינו מציג פרסומות.
+התוסף פועל רק לאחר הסכמה בחלון התוסף. העיבוד מתבצע מקומית בדפדפן. כללי הכתיבה מתווספים להודעה שהמשתמש שולח ל-ChatGPT ונראים בתמליל. התוסף אינו שולח את תוכן השיחות לשום גורם אחר, אינו שומר אותן, אינו מפעיל אנליטיקה ואינו מציג פרסומות.
 
 ## Single purpose
-Display and edit Hebrew correctly right-to-left inside ChatGPT while preserving English, code, formulas, numbers and tables in the appropriate direction.
+Improve Hebrew writing and display inside ChatGPT: render Hebrew right-to-left, keep English, code, formulas, numbers and tables in the appropriate direction, and add visible Hebrew writing rules to the user's own Hebrew messages so replies are readable.
 
 ## Permission justification
 
@@ -38,10 +39,10 @@ Display and edit Hebrew correctly right-to-left inside ChatGPT while preserving 
 נדרש רק כדי לשמור מקומית את מצב התוסף והמתגים שהמשתמש בחר.
 
 ### Host permission: https://chatgpt.com/*
-נדרש כדי לקרוא את הטקסט המוצג בדף ולקבוע את כיוון התצוגה, וכן כדי להחיל את תיקוני ה-RTL בתוך ChatGPT בלבד.
+נדרש כדי לקרוא את הטקסט המוצג בדף ובשדה הכתיבה, לקבוע את כיוון התצוגה, להחיל את תיקוני ה-RTL ולהוסיף את כללי הכתיבה להודעת המשתמש, בתוך ChatGPT בלבד ורק לאחר הסכמה.
 
 ## Data disclosure
-התוסף מעבד תוכן אתר באופן מקומי לצורך קביעת כיוון בלבד. אין העברה לשרת, אין שמירת תוכן שיחה, אין שיתוף עם צד שלישי ואין אנליטיקה.
+התוסף מעבד תוכן אתר (טקסט השיחה ושדה הכתיבה) באופן מקומי, רק לאחר הסכמה מפורשת, לצורך קביעת כיוון ולהוספת כללי כתיבה להודעה. הכללים נשלחים ל-ChatGPT כחלק מההודעה שהמשתמש שולח. אין העברה לשרת של המפתח, אין שמירת תוכן שיחה, אין שיתוף עם צד שלישי ואין אנליטיקה.
 
 ## Homepage
 https://github.com/financialegg/chatgpt-hebrew-rtl

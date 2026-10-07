@@ -1,63 +1,62 @@
-# מדיניות פרטיות — Hebrew RTL for ChatGPT
+# מדיניות פרטיות: Hebrew RTL for ChatGPT
 
-עודכן לאחרונה: 7 באוקטובר 2026
+עודכן לאחרונה: 7 באוקטובר 2026 (גרסה 0.3.0)
 
 ## מטרת התוסף
 
-התוסף Hebrew RTL for ChatGPT נועד למטרה אחת בלבד: להציג ולערוך טקסט בעברית בצורה תקינה מימין לשמאל בתוך ChatGPT, תוך שמירה על אנגלית, קוד, נוסחאות, טיקרים, מספרים וטבלאות בכיוון המתאים.
+התוסף נועד למטרה אחת: לשפר את הכתיבה והתצוגה של עברית בתוך ChatGPT. הוא מציג עברית מימין לשמאל, שומר על אנגלית, קוד, טיקרים, מספרים וטבלאות בכיוון המתאים, ומוסיף להודעות בעברית כללי ניסוח כדי שהתשובה תהיה קריאה.
+
+## הסכמה
+
+התוסף אינו קורא תוכן בדף ואינו מוסיף הנחיות לפני שהמשתמש מסמן בחלון התוסף שקרא והסכים להפעלתו. אפשר לבטל את ההסכמה בכל עת בביטול הסימון, ועיבוד התוכן נעצר מיד.
 
 ## איזה מידע התוסף מעבד
 
-כדי לקבוע את כיוון התצוגה, התוסף קורא באופן מקומי את הטקסט המוצג בדף ChatGPT ואת הטקסט שהמשתמש מקליד בשדה הכתיבה.
+לאחר הסכמה, התוסף קורא באופן מקומי את הטקסט המוצג בשיחה ב-chatgpt.com ואת הטקסט בשדה הכתיבה. הוא משתמש בטקסט כדי לזהות עברית, לקבוע כיוון תצוגה ולהחליט אם להוסיף את כללי הכתיבה.
 
-העיבוד מתבצע בדפדפן של המשתמש בלבד.
+כאשר "כתיבה עברית חכמה" פעילה והמשתמש שולח הודעה שכוללת עברית, התוסף מוסיף לתחילת ההודעה את 30 כללי הכתיבה. הכללים גלויים בתמליל השיחה ונשלחים ל-ChatGPT כחלק מההודעה שהמשתמש בחר לשלוח, ובהתאם לשימושו ב-ChatGPT. ניתן לכבות זאת בחלון התוסף.
 
 ## מה התוסף לא עושה
 
-- התוסף אינו שולח תוכן שיחות לשרת של המפתח או לצד שלישי.
-- התוסף אינו שומר תוכן שיחות.
-- התוסף אינו אוסף היסטוריית גלישה.
-- התוסף אינו משתמש באנליטיקה או במעקב.
-- התוסף אינו מציג פרסומות.
-- התוסף אינו מוכר או משתף מידע אישי.
-- התוסף אינו מריץ קוד מרוחק.
+- אינו שולח תוכן שיחות לשרת של המפתח או לצד שלישי.
+- אינו שומר תוכן שיחות.
+- אינו אוסף היסטוריית גלישה.
+- אינו משתמש באנליטיקה או במעקב ואינו מציג פרסומות.
+- אינו מוכר או משתף מידע אישי.
+- אינו מריץ קוד מרוחק ואינו מבצע בקשות רשת משלו.
+- אינו משנה את הוראות המערכת של ChatGPT.
 
 ## אחסון מקומי
 
-התוסף שומר באמצעות chrome.storage.local רק את הגדרות התצוגה שבחר המשתמש, כגון מצב חכם/כפוי/כבוי והאם לתקן טבלאות ושדה כתיבה.
+התוסף שומר ב-`chrome.storage.local` רק הגדרות: ההסכמה, מצב התצוגה והפעלת תיקון טבלאות, שדה כתיבה וכתיבה חכמה.
 
 ## הרשאות
 
-התוסף מבקש:
+- `storage`: לשמירת ההגדרות מקומית.
+- גישה ל-`https://chatgpt.com/*`: לקריאת הטקסט בדף, להחלת תיקוני ה-RTL ולהוספת הכללים להודעה, באתר זה בלבד.
 
-- storage — כדי לשמור את הגדרות המשתמש מקומית.
-- גישה ל-https://chatgpt.com/* — כדי להחיל את תיקוני ה-RTL רק בתוך ChatGPT.
-
-התוסף אינו מבקש גישה לכל אתרי האינטרנט.
-
-## שימוש מוגבל במידע
-
-כל עיבוד מידע נעשה אך ורק לצורך הפונקציה המוצהרת של התוסף: תיקון כיוון התצוגה והכתיבה ב-ChatGPT.
+התוסף אינו מבקש גישה לאתרים אחרים.
 
 ## יצירת קשר ותמיכה
 
-ניתן לפתוח Issue בריפו הציבורי:
-https://github.com/financialegg/chatgpt-hebrew-rtl/issues
+ניתן לפתוח Issue בריפו הציבורי: https://github.com/financialegg/chatgpt-hebrew-rtl/issues
 
 ---
 
-# Privacy Policy — Hebrew RTL for ChatGPT
+# Privacy Policy: Hebrew RTL for ChatGPT
 
-Last updated: October 7, 2026
+Last updated: October 7, 2026 (version 0.3.0)
 
-Hebrew RTL for ChatGPT has one purpose: to display and edit Hebrew text correctly right-to-left inside ChatGPT while preserving English, code, formulas, tickers, numbers and tables in their appropriate direction.
+The extension has one purpose: to improve Hebrew writing and display inside ChatGPT. It renders Hebrew right-to-left, keeps English, code, tickers, numbers and tables in the appropriate direction, and adds writing rules to Hebrew messages so replies are readable.
 
-The extension locally reads visible ChatGPT text and composer text only to determine display direction. Processing occurs entirely in the user's browser.
+**Consent.** The extension does not read page content or add instructions until the user ticks the consent box in the extension popup. Consent can be withdrawn at any time, which stops processing immediately.
 
-The extension does not transmit or store conversation content, collect browsing history, use analytics or tracking, show advertising, sell or share personal information, or execute remote code.
+**What it processes.** After consent, the extension locally reads the visible conversation text on chatgpt.com and the text in the composer, to detect Hebrew, decide display direction and decide whether to add the writing rules. When "smart Hebrew writing" is on and the user sends a message containing Hebrew, the extension prepends 30 visible writing rules to the message. The rules are sent to ChatGPT as part of the message the user chose to send, subject to the user's own use of ChatGPT. This can be turned off in the popup.
 
-The only persistent data stored is the user's extension settings in chrome.storage.local.
+**What it does not do.** It does not transmit conversation content to the developer or any third party, store conversation content, collect browsing history, use analytics or tracking, show advertising, sell or share personal information, execute remote code or make network requests of its own. It does not modify ChatGPT's internal system instructions.
 
-The extension requests storage permission and host access only to https://chatgpt.com/*.
+**Storage.** Only settings (consent, display mode, and the table, composer and smart-writing toggles) are stored in `chrome.storage.local`.
 
-All information handling is limited to the extension's disclosed single purpose.
+**Permissions.** `storage`, and host access to `https://chatgpt.com/*` only.
+
+**Contact.** Open an issue at https://github.com/financialegg/chatgpt-hebrew-rtl/issues

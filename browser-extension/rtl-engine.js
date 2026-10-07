@@ -1,11 +1,11 @@
-/* Hebrew RTL Engine v0.2.0
+/* Hebrew RTL Engine v0.3.0
  * Hebrew-first, browser-safe RTL processing for ChatGPT/Codex surfaces.
  * Exposes globalThis.HebrewRTLEngine.
  */
 (function (global) {
   "use strict";
 
-  const VERSION = "0.2.0";
+  const VERSION = "0.3.0";
   const DEFAULTS = {
     mode: "smart",
     tables: true,

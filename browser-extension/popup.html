@@ -3,18 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Hebrew RTL</title>
+  <title>עברית חכמה ו-RTL</title>
   <style>
-    body { font-family: Arial, sans-serif; min-width: 260px; margin: 16px; direction: rtl; }
+    body { font-family: Arial, sans-serif; min-width: 280px; margin: 16px; direction: rtl; }
     h1 { font-size: 17px; margin: 0 0 12px; }
     label { display: block; margin: 10px 0; }
     select { width: 100%; padding: 6px; margin-top: 5px; }
     .row { display: flex; gap: 8px; align-items: center; }
     .note { font-size: 12px; opacity: .72; margin-top: 12px; line-height: 1.45; }
+    .notice { background: #f2f6fc; border: 1px solid #c7d8ee; border-radius: 8px; padding: 10px; font-size: 12px; line-height: 1.5; }
   </style>
 </head>
 <body>
-  <h1>Hebrew RTL</h1>
+  <h1>עברית חכמה ו-RTL</h1>
+  <div class="notice" id="privacyNotice">כדי לפעול, התוסף קורא את הטקסט בשדה הכתיבה ואת תוכן השיחה ב-ChatGPT. הוא משתמש בהם רק לשיפור הניסוח והתצוגה, אינו שומר או מעביר אותם לשירות אחר, וההנחיות מתווספות להודעה שתישלח ל-ChatGPT.</div>
+  <label class="row"><input type="checkbox" id="consent"><span>קראתי ואני מסכים להפעלת התוסף ב-ChatGPT</span></label>
+  <label class="row"><input type="checkbox" id="smartWriting"><span>כתיבה עברית חכמה</span></label>
+  <div class="note">מוסיף את כללי הכתיבה להודעות שלך בעברית לפני השליחה ל-ChatGPT. הכללים מופיעים כחלק מההודעה.</div>
   <label>
     מצב תצוגה
     <select id="mode">
@@ -25,7 +30,7 @@
   </label>
   <label class="row"><input type="checkbox" id="tables"><span>תקן טבלאות</span></label>
   <label class="row"><input type="checkbox" id="composer"><span>תקן את שדה הכתיבה</span></label>
-  <div class="note">המצב החכם משאיר קוד, נוסחאות וטקסט אנגלי משמאל לימין.</div>
+  <div class="note">מצב התצוגה החכם משאיר קוד, נוסחאות וטקסט אנגלי משמאל לימין.</div>
   <script src="popup.js"></script>
 </body>
 </html>

@@ -40,8 +40,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.2.1 >/dev/null 2>&1; then
-            gh release upload v0.2.1               chatgpt-hebrew-rtl-webstore.zip               store-assets/screenshot-1280x800.png               store-assets/promo-440x280.png               store-assets/marquee-1400x560.png               --clobber
+          VERSION="v$(node -p "require('./browser-extension/manifest.json').version")"
+          ASSETS="chatgpt-hebrew-rtl-webstore.zip store-assets/screenshot-1280x800.png store-assets/promo-440x280.png store-assets/marquee-1400x560.png"
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            gh release upload "$VERSION" $ASSETS --clobber
           else
-            gh release create v0.2.1               chatgpt-hebrew-rtl-webstore.zip               store-assets/screenshot-1280x800.png               store-assets/promo-440x280.png               store-assets/marquee-1400x560.png               --title "v0.2.1 Chrome Web Store package"               --notes "Chrome Web Store-ready package and listing assets for Hebrew RTL for ChatGPT."
+            gh release create "$VERSION" $ASSETS --title "$VERSION Chrome Web Store package" --notes "Chrome Web Store-ready package and listing assets for Hebrew RTL for ChatGPT."
           fi

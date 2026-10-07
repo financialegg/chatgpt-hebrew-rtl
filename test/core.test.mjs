@@ -83,3 +83,28 @@ test("Desktop payload is reload-safe and does not rely on a permanent injected-t
   assert.match(desktop, /__HEBREW_RTL_DESKTOP_VERSION__/);
   assert.match(desktop, /refreshTargets\(\)/);
 });
+
+const rulesContext = {};
+rulesContext.globalThis = rulesContext;
+vm.createContext(rulesContext);
+vm.runInContext(fs.readFileSync(path.join(root, "browser-extension", "writing-rules.js"), "utf8"), rulesContext);
+const instruction = rulesContext.HebrewWritingRules.buildInstruction();
+
+test("Writing rules contain 30 numbered rules, including rule 22", () => {
+  const numbers = [...instruction.matchAll(/^(\d+)\. /gm)].map(match => Number(match[1]));
+  assert.deepEqual(numbers, Array.from({ length: 30 }, (_, i) => i + 1));
+  assert.match(instruction, /^22\. /m);
+});
+
+test("Content script marker matches the instruction so it is never added twice", () => {
+  const content = fs.readFileSync(path.join(root, "browser-extension", "content.js"), "utf8");
+  const marker = content.match(/INSTRUCTION_MARKER = "([^"]+)"/)[1];
+  assert.equal(instruction.includes(marker), true);
+});
+
+test("Content script defers the send so the editor commits the inserted rules", () => {
+  const content = fs.readFileSync(path.join(root, "browser-extension", "content.js"), "utf8");
+  assert.match(content, /execCommand\("insertText"/);
+  assert.match(content, /stopImmediatePropagation\(\)/);
+  assert.equal(content.includes("replaceChildren"), false);
+});

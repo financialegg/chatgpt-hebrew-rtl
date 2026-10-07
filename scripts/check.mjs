@@ -11,6 +11,7 @@ const jsFiles = [
   "core/rtl-engine.js",
   "browser-extension/rtl-engine.js",
   "browser-extension/content.js",
+  "browser-extension/writing-rules.js",
   "browser-extension/popup.js",
   "desktop/launcher.mjs",
   "scripts/sync-extension.mjs",
@@ -49,3 +50,21 @@ const core = fs.readFileSync(path.join(root, "core/rtl-engine.js"), "utf8");
 const ext = fs.readFileSync(path.join(root, "browser-extension/rtl-engine.js"), "utf8");
 if (core !== ext) throw new Error("browser-extension/rtl-engine.js is out of sync; run npm run build");
 console.log("Core and extension engine are in sync.");
+
+const versions = {
+  "package.json": JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).version,
+  "browser-extension/manifest.json": JSON.parse(fs.readFileSync(path.join(root, "browser-extension/manifest.json"), "utf8")).version,
+  "plugins/hebrew-rtl/plugin.json": plugin.version,
+  "core/rtl-engine.js": core.match(/const VERSION = "([^"]+)"/)?.[1],
+  "desktop/launcher.mjs": fs.readFileSync(path.join(root, "desktop/launcher.mjs"), "utf8").match(/DESKTOP_VERSION = "([^"]+)"/)?.[1]
+};
+if (new Set(Object.values(versions)).size !== 1) {
+  throw new Error(`Version mismatch: ${JSON.stringify(versions)}`);
+}
+console.log(`All versions match: ${versions["package.json"]}`);
+
+const manifest = JSON.parse(fs.readFileSync(path.join(root, "browser-extension/manifest.json"), "utf8"));
+for (const script of manifest.content_scripts.flatMap(entry => entry.js)) {
+  if (!fs.existsSync(path.join(root, "browser-extension", script))) throw new Error(`Manifest references a missing script: ${script}`);
+}
+console.log("Manifest content scripts exist.");
