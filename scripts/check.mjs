@@ -40,7 +40,7 @@ if (!fs.existsSync(path.join(pluginRoot, "plugin.json"))) throw new Error("Codex
 const plugin = JSON.parse(fs.readFileSync(path.join(pluginRoot, "plugin.json"), "utf8"));
 const skillPath = path.join(pluginRoot, "skills", "hebrew-rtl", "SKILL.md");
 const skill = fs.readFileSync(skillPath, "utf8");
-if (!plugin.skills || !skill.startsWith("---\n") || !/^name:\s*hebrew-rtl\s*$/m.test(skill)) {
+if (!plugin.skills || !/^---\r?\n/.test(skill) || !/^name:\s*hebrew-rtl\s*$/m.test(skill)) {
   throw new Error("Codex plugin skill metadata is incomplete.");
 }
 console.log("Codex marketplace plugin and skill are present.");
