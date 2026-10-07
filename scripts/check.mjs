@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -68,3 +69,23 @@ for (const script of manifest.content_scripts.flatMap(entry => entry.js)) {
   if (!fs.existsSync(path.join(root, "browser-extension", script))) throw new Error(`Manifest references a missing script: ${script}`);
 }
 console.log("Manifest content scripts exist.");
+
+for (const size of [16, 32, 48, 128]) {
+  const file = path.join(root, "browser-extension/icons", `icon${size}.png`);
+  const png = fs.readFileSync(file);
+  let offset = 8;
+  const types = [];
+  const idat = [];
+  while (offset < png.length) {
+    const length = png.readUInt32BE(offset);
+    const type = png.toString("ascii", offset + 4, offset + 8);
+    types.push(type);
+    if (type === "IDAT") idat.push(png.subarray(offset + 8, offset + 8 + length));
+    offset += 12 + length;
+  }
+  const width = png.readUInt32BE(16);
+  const height = png.readUInt32BE(20);
+  if (types.at(-1) !== "IEND" || width !== size || height !== size) throw new Error(`icon${size}.png is truncated or the wrong size.`);
+  zlib.inflateSync(Buffer.concat(idat));
+}
+console.log("Extension icons are complete PNG files.");
