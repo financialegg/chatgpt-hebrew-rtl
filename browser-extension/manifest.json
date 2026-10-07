@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Hebrew RTL for ChatGPT",
+  "version": "0.1.1",
+  "description": "Smart Hebrew RTL for ChatGPT: mixed Hebrew/English text, tables, code and composer.",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*"
+  ],
+  "action": {
+    "default_title": "Hebrew RTL",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ],
+      "js": [
+        "rtl-engine.js",
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
