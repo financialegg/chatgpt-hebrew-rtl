@@ -7,6 +7,14 @@ RTL ממוקד עברית עבור ChatGPT בדפדפן ועבור ChatGPT/Codex
 1. **מנוע תצוגת RTL** שמתקן כיוון, יישור, טבלאות, קוד ושדה כתיבה.
 2. **RTL Skill** שמנחה את המודל לנסח עברית בצורה שלא נשברת כאשר משלבים טיקרים, אנגלית, אחוזים ומספרים.
 
+## התקנה פשוטה ב־Codex למחשב
+
+שלחו ל־Codex את [קישור הריפו](https://github.com/financialegg/chatgpt-hebrew-rtl) ובקשו ממנו: **"התקן עבורי את התמיכה המלאה בעברית וב־RTL לפי `INSTALL_FOR_CODEX.md`. בדוק את המתקין לפני ההרצה, ואל תסגור את Codex. בסיום הסבר לי איך להפעיל אותו מחדש."**
+
+ב־Windows המתקין מוסיף תוסף כתיבה ויוצר בתפריט Start קיצור דרך בשם **Codex with Hebrew RTL**. נדרשים Codex Desktop ו־Node.js 22 ומעלה; אין צורך בהרשאות מנהל.
+
+לאחר ההתקנה שמרו את העבודה, סגרו את כל חלונות Codex ופתחו **FinancialEgg → Codex with Hebrew RTL** מתפריט Start. השאירו את חלון המסוף פתוח בזמן השימוש. בדקו פסקה בעברית ושורה מעורבת, למשל `מניית NVDA עלתה ב־5.3% אחרי הדוח.`
+
 ## יכולות
 
 - זיהוי אוטומטי של פסקה עברית או אנגלית.
@@ -36,20 +44,21 @@ RTL ממוקד עברית עבור ChatGPT בדפדפן ועבור ChatGPT/Codex
 
 ## ChatGPT/Codex במחשב
 
-גרסת ה־Desktop היא MVP שמשתמש באותו מנוע ומזריק אותו לאפליקציית Electron דרך Chrome DevTools Protocol מקומי.
+מנוע שולחן העבודה משתמש ב־Chromium DevTools Protocol מקומי כדי להזריק את מנוע ה־RTL לאפליקציית Codex.
 
-דרישות:
+### Windows
 
-- Node.js 22 ומעלה.
-- יש לסגור את ChatGPT/Codex לפני ההפעלה הראשונה.
+המתקין האוטומטי נמצא ב־`scripts/install-windows.ps1`. הוראות ההתקנה המלאות נמצאות ב־[`INSTALL_FOR_CODEX.md`](INSTALL_FOR_CODEX.md). המתקין אינו מבקש הרשאות מנהל או משנה קובצי Codex.
 
-הפעלה:
+### macOS ו־Linux
+
+נדרשים Node.js 22 ומעלה. סגרו את האפליקציה והפעילו ידנית:
 
 ```bash
 npm run desktop
 ```
 
-אם האפליקציה לא מזוהה אוטומטית:
+אם האפליקציה לא מזוהה אוטומטית, ציינו את הנתיב המלא:
 
 ```bash
 node desktop/launcher.mjs --exe "C:\\Path\\To\\Codex.exe"
@@ -106,15 +115,22 @@ chatgpt-hebrew-rtl/
 │   └── popup.js
 ├── desktop/
 │   └── launcher.mjs
+├── plugins/
+│   └── hebrew-rtl/
+│       ├── plugin.json
+│       └── skills/hebrew-rtl/SKILL.md
+├── .agents/plugins/marketplace.json
 ├── skill/
 │   └── RTL_SKILL_HE.md
 ├── scripts/
 │   ├── sync-extension.mjs
-│   └── check.mjs
+│   ├── check.mjs
+│   └── install-windows.ps1
 ├── test/
 │   └── core.test.mjs
 ├── .github/workflows/ci.yml
 ├── SECURITY.md
+├── INSTALL_FOR_CODEX.md
 ├── CONTRIBUTING.md
 ├── LICENSE
 └── README.md

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hebrew-rtl",
+  "version": "0.2.1",
+  "description": "Hebrew RTL writing guidance and a local desktop display launcher for Codex.",
+  "author": {
+    "name": "FinancialEgg",
+    "url": "https://github.com/financialegg"
+  },
+  "homepage": "https://github.com/financialegg/chatgpt-hebrew-rtl",
+  "repository": "https://github.com/financialegg/chatgpt-hebrew-rtl",
+  "license": "MIT",
+  "keywords": ["hebrew", "rtl", "right-to-left", "codex", "chatgpt"],
+  "skills": "./skills/"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "financialegg-hebrew-rtl",
+  "interface": {
+    "displayName": "FinancialEgg"
+  },
+  "plugins": [
+    {
+      "name": "hebrew-rtl",
+      "source": {
+        "source": "local",
+        "path": "./plugins/hebrew-rtl"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

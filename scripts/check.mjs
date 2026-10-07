@@ -22,10 +22,28 @@ for (const rel of jsFiles) {
   execFileSync(process.execPath, ["--check", path.join(root, rel)], { stdio: "inherit" });
 }
 
-for (const rel of ["package.json", "browser-extension/manifest.json"]) {
+for (const rel of [
+  "package.json",
+  "browser-extension/manifest.json",
+  ".agents/plugins/marketplace.json",
+  "plugins/hebrew-rtl/plugin.json"
+]) {
   JSON.parse(fs.readFileSync(path.join(root, rel), "utf8"));
   console.log(`Valid JSON: ${rel}`);
 }
+
+const marketplace = JSON.parse(fs.readFileSync(path.join(root, ".agents/plugins/marketplace.json"), "utf8"));
+const pluginEntry = marketplace.plugins.find(plugin => plugin.name === "hebrew-rtl");
+if (!pluginEntry) throw new Error("Codex marketplace does not contain the hebrew-rtl plugin.");
+const pluginRoot = path.resolve(root, pluginEntry.source.path);
+if (!fs.existsSync(path.join(pluginRoot, "plugin.json"))) throw new Error("Codex marketplace plugin source is missing plugin.json.");
+const plugin = JSON.parse(fs.readFileSync(path.join(pluginRoot, "plugin.json"), "utf8"));
+const skillPath = path.join(pluginRoot, "skills", "hebrew-rtl", "SKILL.md");
+const skill = fs.readFileSync(skillPath, "utf8");
+if (!plugin.skills || !skill.startsWith("---\n") || !/^name:\s*hebrew-rtl\s*$/m.test(skill)) {
+  throw new Error("Codex plugin skill metadata is incomplete.");
+}
+console.log("Codex marketplace plugin and skill are present.");
 
 const core = fs.readFileSync(path.join(root, "core/rtl-engine.js"), "utf8");
 const ext = fs.readFileSync(path.join(root, "browser-extension/rtl-engine.js"), "utf8");
