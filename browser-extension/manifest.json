@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Hebrew RTL for ChatGPT",
   "short_name": "Hebrew RTL",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "מוסיף כללי כתיבה להודעות בעברית ומשפר תצוגת RTL ב-ChatGPT, בלי לשבור אנגלית, קוד, מספרים וטבלאות.",
   "permissions": [
     "storage"

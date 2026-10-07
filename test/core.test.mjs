@@ -108,3 +108,12 @@ test("Content script defers the send so the editor commits the inserted rules", 
   assert.match(content, /stopImmediatePropagation\(\)/);
   assert.equal(content.includes("replaceChildren"), false);
 });
+
+test("styles.css is scoped so nothing applies before consent or in off mode", () => {
+  const css = fs.readFileSync(path.join(root, "browser-extension", "styles.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const selectors = css.split("}").flatMap(rule => (rule.split("{")[0] || "").split(",")).map(s => s.trim()).filter(Boolean);
+  assert.ok(selectors.length > 0);
+  for (const selector of selectors) assert.match(selector, /^html\[data-hebrew-rtl-active\] /, selector);
+  assert.match(code, /removeAttribute\(MARK_ACTIVE\)/);
+  assert.match(code, /setAttribute\(MARK_ACTIVE, "1"\)/);
+});

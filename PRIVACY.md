@@ -1,6 +1,6 @@
 # מדיניות פרטיות: Hebrew RTL for ChatGPT
 
-עודכן לאחרונה: 7 באוקטובר 2026 (גרסה 0.3.0)
+עודכן לאחרונה: 7 באוקטובר 2026 (גרסה 0.3.1)
 
 ## מטרת התוסף
 
@@ -45,7 +45,7 @@
 
 # Privacy Policy: Hebrew RTL for ChatGPT
 
-Last updated: October 7, 2026 (version 0.3.0)
+Last updated: October 7, 2026 (version 0.3.1)
 
 The extension has one purpose: to improve Hebrew writing and display inside ChatGPT. It renders Hebrew right-to-left, keeps English, code, tickers, numbers and tables in the appropriate direction, and adds writing rules to Hebrew messages so replies are readable.
 

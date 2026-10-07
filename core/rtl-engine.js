@@ -1,11 +1,11 @@
-/* Hebrew RTL Engine v0.3.0
+/* Hebrew RTL Engine v0.3.1
  * Hebrew-first, browser-safe RTL processing for ChatGPT/Codex surfaces.
  * Exposes globalThis.HebrewRTLEngine.
  */
 (function (global) {
   "use strict";
 
-  const VERSION = "0.3.0";
+  const VERSION = "0.3.1";
   const DEFAULTS = {
     mode: "smart",
     tables: true,
@@ -19,6 +19,7 @@
   const MARK_CELL = "data-hebrew-rtl-cell";
   const MARK_LTR = "data-hebrew-rtl-ltr";
   const MARK_COMPOSER = "data-hebrew-rtl-composer";
+  const MARK_ACTIVE = "data-hebrew-rtl-active";
 
   const RTL_RE = /[\u0590-\u05FF\uFB1D-\uFB4F\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
   const HEBREW_RE = /[\u0590-\u05FF\uFB1D-\uFB4F]/;
@@ -271,6 +272,11 @@
       return;
     }
 
+    // styles.css only applies while this marker is present.
+    if (!document.documentElement.hasAttribute(MARK_ACTIVE)) {
+      document.documentElement.setAttribute(MARK_ACTIVE, "1");
+    }
+
     if (root === document || root === document.documentElement || root === document.body) {
       for (const conversationRoot of conversationRoots()) processRoot(conversationRoot);
       processComposers(document);
@@ -302,6 +308,7 @@
 
   function clearAll() {
     if (typeof document === "undefined") return;
+    document.documentElement.removeAttribute(MARK_ACTIVE);
     clearTables();
     clearComposers();
     clearMarked(`[${MARK_LTR}]`, MARK_LTR);
