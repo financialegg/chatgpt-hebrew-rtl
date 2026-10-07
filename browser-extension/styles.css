@@ -1,0 +1,32 @@
+/* Minimal visual layer. Direction logic lives in rtl-engine.js. */
+
+[data-hebrew-rtl="rtl"] {
+  text-align: right !important;
+}
+
+[data-hebrew-rtl="ltr"] {
+  text-align: left !important;
+}
+
+[data-hebrew-rtl-table="1"] {
+  direction: rtl !important;
+}
+
+pre,
+code,
+kbd,
+samp,
+.katex,
+.katex-display,
+mjx-container,
+math {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: isolate !important;
+}
+
+[data-hebrew-rtl="rtl"] ul,
+[data-hebrew-rtl="rtl"] ol {
+  padding-inline-start: 1.6em;
+  padding-inline-end: 0;
+}
