@@ -1,10 +1,10 @@
 # מדיניות פרטיות: Hebrew RTL for ChatGPT
 
-עודכן לאחרונה: 7 באוקטובר 2026 (גרסה 0.3.1)
+עודכן לאחרונה: 8 באוקטובר 2026 (גרסה 0.3.2)
 
 ## מטרת התוסף
 
-התוסף נועד למטרה אחת: לשפר את הכתיבה והתצוגה של עברית בתוך ChatGPT. הוא מציג עברית מימין לשמאל, שומר על אנגלית, קוד, טיקרים, מספרים וטבלאות בכיוון המתאים, ומוסיף להודעות בעברית כללי ניסוח כדי שהתשובה תהיה קריאה.
+התוסף נועד למטרה אחת: לשפר את התצוגה של עברית בתוך ChatGPT. הוא מציג עברית מימין לשמאל ושומר על אנגלית, קוד, טיקרים, מספרים וטבלאות בכיוון המתאים.
 
 ## הסכמה
 
@@ -12,9 +12,9 @@
 
 ## איזה מידע התוסף מעבד
 
-לאחר הסכמה, התוסף קורא באופן מקומי את הטקסט המוצג בשיחה ב-chatgpt.com ואת הטקסט בשדה הכתיבה. הוא משתמש בטקסט כדי לזהות עברית, לקבוע כיוון תצוגה ולהחליט אם להוסיף את כללי הכתיבה.
+לאחר הסכמה, התוסף קורא באופן מקומי את הטקסט המוצג בשיחה ב-chatgpt.com ואת הטקסט בשדה הכתיבה. הוא משתמש בטקסט רק כדי לזהות עברית ולקבוע כיוון תצוגה.
 
-כאשר "כתיבה עברית חכמה" פעילה והמשתמש שולח הודעה שכוללת עברית, התוסף מוסיף לתחילת ההודעה את 30 כללי הכתיבה. הכללים גלויים בתמליל השיחה ונשלחים ל-ChatGPT כחלק מההודעה שהמשתמש בחר לשלוח, ובהתאם לשימושו ב-ChatGPT. ניתן לכבות זאת בחלון התוסף.
+התוסף לא משנה ולא מוסיף דבר להודעות שהמשתמש שולח.
 
 ## מה התוסף לא עושה
 
@@ -33,7 +33,7 @@
 ## הרשאות
 
 - `storage`: לשמירת ההגדרות מקומית.
-- גישה ל-`https://chatgpt.com/*`: לקריאת הטקסט בדף, להחלת תיקוני ה-RTL ולהוספת הכללים להודעה, באתר זה בלבד.
+- גישה ל-`https://chatgpt.com/*`: לקריאת הטקסט בדף ולהחלת תיקוני ה-RTL, באתר זה בלבד.
 
 התוסף אינו מבקש גישה לאתרים אחרים.
 
@@ -45,13 +45,13 @@
 
 # Privacy Policy: Hebrew RTL for ChatGPT
 
-Last updated: October 7, 2026 (version 0.3.1)
+Last updated: October 8, 2026 (version 0.3.2)
 
-The extension has one purpose: to improve Hebrew writing and display inside ChatGPT. It renders Hebrew right-to-left, keeps English, code, tickers, numbers and tables in the appropriate direction, and adds writing rules to Hebrew messages so replies are readable.
+The extension has one purpose: to improve Hebrew display inside ChatGPT. It renders Hebrew right-to-left and keeps English, code, tickers, numbers and tables in the appropriate direction.
 
-**Consent.** The extension does not read page content or add instructions until the user ticks the consent box in the extension popup. Consent can be withdrawn at any time, which stops processing immediately.
+**Consent.** The extension does not read page content until the user ticks the consent box in the extension popup. Consent can be withdrawn at any time, which stops processing immediately.
 
-**What it processes.** After consent, the extension locally reads the visible conversation text on chatgpt.com and the text in the composer, to detect Hebrew, decide display direction and decide whether to add the writing rules. When "smart Hebrew writing" is on and the user sends a message containing Hebrew, the extension prepends 30 visible writing rules to the message. The rules are sent to ChatGPT as part of the message the user chose to send, subject to the user's own use of ChatGPT. This can be turned off in the popup.
+**What it processes.** After consent, the extension locally reads the visible conversation text on chatgpt.com and the text in the composer, only to detect Hebrew and decide display direction. It never changes or adds to the messages the user sends.
 
 **What it does not do.** It does not transmit conversation content to the developer or any third party, store conversation content, collect browsing history, use analytics or tracking, show advertising, sell or share personal information, execute remote code or make network requests of its own. It does not modify ChatGPT's internal system instructions.
 

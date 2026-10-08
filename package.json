@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-hebrew-rtl",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "description": "Hebrew-first RTL engine for ChatGPT web and ChatGPT/Codex desktop.",
   "type": "module",

@@ -12,7 +12,6 @@ const jsFiles = [
   "core/rtl-engine.js",
   "browser-extension/rtl-engine.js",
   "browser-extension/content.js",
-  "browser-extension/writing-rules.js",
   "browser-extension/popup.js",
   "desktop/launcher.mjs",
   "scripts/sync-extension.mjs",

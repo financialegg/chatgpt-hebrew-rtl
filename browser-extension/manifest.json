@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Hebrew RTL for ChatGPT",
   "short_name": "Hebrew RTL",
-  "version": "0.3.1",
-  "description": "מוסיף כללי כתיבה להודעות בעברית ומשפר תצוגת RTL ב-ChatGPT, בלי לשבור אנגלית, קוד, מספרים וטבלאות.",
+  "version": "0.3.2",
+  "description": "משפר תצוגת עברית מימין לשמאל ב-ChatGPT, בלי לשבור אנגלית, קוד, מספרים וטבלאות. לא משנה את ההודעות שאתה שולח.",
   "permissions": [
     "storage"
   ],
@@ -33,7 +33,6 @@
       ],
       "js": [
         "rtl-engine.js",
-        "writing-rules.js",
         "content.js"
       ],
       "css": [

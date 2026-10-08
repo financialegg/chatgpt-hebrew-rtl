@@ -3,14 +3,12 @@ const DEFAULTS = {
   tables: true,
   composer: true,
   observe: true,
-  smartWriting: true,
   consented: false
 };
 
 const mode = document.getElementById("mode");
 const tables = document.getElementById("tables");
 const composer = document.getElementById("composer");
-const smartWriting = document.getElementById("smartWriting");
 const consent = document.getElementById("consent");
 
 async function currentSettings() {
@@ -18,7 +16,6 @@ async function currentSettings() {
     mode: mode.value,
     tables: tables.checked,
     composer: composer.checked,
-    smartWriting: smartWriting.checked,
     consented: consent.checked,
     observe: true
   };
@@ -49,9 +46,8 @@ async function init() {
   mode.value = settings.mode || "smart";
   tables.checked = settings.tables !== false;
   composer.checked = settings.composer !== false;
-  smartWriting.checked = settings.smartWriting !== false;
   consent.checked = settings.consented === true;
-  for (const control of [mode, tables, composer, smartWriting]) {
+  for (const control of [mode, tables, composer]) {
     control.disabled = !consent.checked;
   }
 }
@@ -59,13 +55,11 @@ async function init() {
 mode.addEventListener("change", save);
 tables.addEventListener("change", save);
 composer.addEventListener("change", save);
-smartWriting.addEventListener("change", save);
 consent.addEventListener("change", async () => {
-  for (const control of [mode, tables, composer, smartWriting]) {
+  for (const control of [mode, tables, composer]) {
     control.disabled = !consent.checked;
   }
   if (consent.checked) {
-    smartWriting.checked = true;
     mode.value = "smart";
     tables.checked = true;
     composer.checked = true;
