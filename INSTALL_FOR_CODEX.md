@@ -4,6 +4,7 @@
 
 1. תוסף Codex עם הנחיות לכתיבה בעברית ובטקסט מעורב.
 2. מתקין ל־Windows שמוסיף מזריק תצוגת RTL ל־Codex Desktop.
+3. כללי כתיבה גלובליים בקובץ `codex/AGENTS.md`, שהמתקין מוסיף לקובץ ההוראות הגלובלי של Codex.
 
 התוסף לבדו **אינו משנה את תצוגת החלון של Codex**. תצוגת Desktop דורשת מזריק שפותח פורט דיבוג מקומי באפליקציה, ולכן אין להתקין אותו על מחשב משותף או לא מהימן (פרטים ב-[SECURITY.md](SECURITY.md)). להתקנה מלאה ב־Windows פעל לפי ההוראות הבאות.
 
@@ -27,6 +28,7 @@
 ## מה המתקין משנה
 
 - מתקין את התוסף `hebrew-rtl` דרך Codex CLI.
+- מוסיף את כללי הכתיבה מ-`codex/AGENTS.md` לסוף `%USERPROFILE%\.codex\AGENTS.md` (או `CODEX_HOME`), פעם אחת בלבד, בלי למחוק את מה שכבר כתוב שם.
 - מעתיק את מנוע ה־RTL ואת המזריק אל `%LOCALAPPDATA%\FinancialEgg\HebrewRTL`.
 - יוצר קיצור דרך בתפריט Start תחת **FinancialEgg**.
 - אינו מבקש הרשאות מנהל, אינו משנה קובצי Codex ואינו שולח תוכן שיחות לשרת. המזריק משתמש ביציאת Chromium DevTools מקומית; קראו את [SECURITY.md](SECURITY.md).
@@ -44,4 +46,4 @@ codex plugin add hebrew-rtl@financialegg-hebrew-rtl
 
 כדי לקבל גם תצוגת RTL ב־Codex Desktop ב־Windows, הרץ בנוסף את `scripts/install-windows.ps1`.
 
-תוסף הדפדפן מיועד ל־ChatGPT ב־Chrome או ב־Edge. הוא אינו משפיע על Codex Desktop.
+כדי להוסיף רק את כללי הכתיבה, בלי המתקין: מעתיקים את תוכן `codex/AGENTS.md` לסוף `%USERPROFILE%\.codex\AGENTS.md`, ופותחים שיחה חדשה ב-Codex.

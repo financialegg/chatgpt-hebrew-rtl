@@ -83,21 +83,3 @@ test("Desktop payload is reload-safe and does not rely on a permanent injected-t
   assert.match(desktop, /__HEBREW_RTL_DESKTOP_VERSION__/);
   assert.match(desktop, /refreshTargets\(\)/);
 });
-
-test("Content script never edits or adds to the user's message", () => {
-  const content = fs.readFileSync(path.join(root, "browser-extension", "content.js"), "utf8");
-  for (const forbidden of ["execCommand", "insertText", "preventDefault", "keydown", "dispatchEvent"]) {
-    assert.equal(content.includes(forbidden), false, forbidden);
-  }
-  const manifest = JSON.parse(fs.readFileSync(path.join(root, "browser-extension", "manifest.json"), "utf8"));
-  assert.equal(manifest.content_scripts.flatMap(entry => entry.js).includes("writing-rules.js"), false);
-});
-
-test("styles.css is scoped so nothing applies before consent or in off mode", () => {
-  const css = fs.readFileSync(path.join(root, "browser-extension", "styles.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-  const selectors = css.split("}").flatMap(rule => (rule.split("{")[0] || "").split(",")).map(s => s.trim()).filter(Boolean);
-  assert.ok(selectors.length > 0);
-  for (const selector of selectors) assert.match(selector, /^html\[data-hebrew-rtl-active\] /, selector);
-  assert.match(code, /removeAttribute\(MARK_ACTIVE\)/);
-  assert.match(code, /setAttribute\(MARK_ACTIVE, "1"\)/);
-});

@@ -1,9 +1,5 @@
 # Security
 
-## Browser extension
-
-The extension runs only on ChatGPT web origins declared in `manifest.json`. It does not send conversation content to any server and uses only local extension storage for settings.
-
 ## Desktop injector
 
 The desktop MVP launches ChatGPT/Codex with Chromium remote debugging bound to `127.0.0.1` on an ephemeral local port, then injects the RTL engine through the Chrome DevTools Protocol.

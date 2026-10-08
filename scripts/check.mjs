@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -10,11 +9,7 @@ const root = path.resolve(__dirname, "..");
 
 const jsFiles = [
   "core/rtl-engine.js",
-  "browser-extension/rtl-engine.js",
-  "browser-extension/content.js",
-  "browser-extension/popup.js",
   "desktop/launcher.mjs",
-  "scripts/sync-extension.mjs",
   "scripts/check.mjs",
   "test/core.test.mjs"
 ];
@@ -25,7 +20,6 @@ for (const rel of jsFiles) {
 
 for (const rel of [
   "package.json",
-  "browser-extension/manifest.json",
   ".agents/plugins/marketplace.json",
   "plugins/hebrew-rtl/plugin.json"
 ]) {
@@ -47,13 +41,8 @@ if (!plugin.skills || !/^---\r?\n/.test(skill) || !/^name:\s*hebrew-rtl\s*$/m.te
 console.log("Codex marketplace plugin and skill are present.");
 
 const core = fs.readFileSync(path.join(root, "core/rtl-engine.js"), "utf8");
-const ext = fs.readFileSync(path.join(root, "browser-extension/rtl-engine.js"), "utf8");
-if (core !== ext) throw new Error("browser-extension/rtl-engine.js is out of sync; run npm run build");
-console.log("Core and extension engine are in sync.");
-
 const versions = {
   "package.json": JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).version,
-  "browser-extension/manifest.json": JSON.parse(fs.readFileSync(path.join(root, "browser-extension/manifest.json"), "utf8")).version,
   "plugins/hebrew-rtl/plugin.json": plugin.version,
   "core/rtl-engine.js": core.match(/const VERSION = "([^"]+)"/)?.[1],
   "desktop/launcher.mjs": fs.readFileSync(path.join(root, "desktop/launcher.mjs"), "utf8").match(/DESKTOP_VERSION = "([^"]+)"/)?.[1]
@@ -63,28 +52,8 @@ if (new Set(Object.values(versions)).size !== 1) {
 }
 console.log(`All versions match: ${versions["package.json"]}`);
 
-const manifest = JSON.parse(fs.readFileSync(path.join(root, "browser-extension/manifest.json"), "utf8"));
-for (const script of manifest.content_scripts.flatMap(entry => entry.js)) {
-  if (!fs.existsSync(path.join(root, "browser-extension", script))) throw new Error(`Manifest references a missing script: ${script}`);
+const agents = fs.readFileSync(path.join(root, "codex/AGENTS.md"), "utf8");
+if (!agents.includes("# Global Hebrew RTL response instructions for Codex") || !/^כלל 12:/m.test(agents)) {
+  throw new Error("codex/AGENTS.md is missing its heading or rules.");
 }
-console.log("Manifest content scripts exist.");
-
-for (const size of [16, 32, 48, 128]) {
-  const file = path.join(root, "browser-extension/icons", `icon${size}.png`);
-  const png = fs.readFileSync(file);
-  let offset = 8;
-  const types = [];
-  const idat = [];
-  while (offset < png.length) {
-    const length = png.readUInt32BE(offset);
-    const type = png.toString("ascii", offset + 4, offset + 8);
-    types.push(type);
-    if (type === "IDAT") idat.push(png.subarray(offset + 8, offset + 8 + length));
-    offset += 12 + length;
-  }
-  const width = png.readUInt32BE(16);
-  const height = png.readUInt32BE(20);
-  if (types.at(-1) !== "IEND" || width !== size || height !== size) throw new Error(`icon${size}.png is truncated or the wrong size.`);
-  zlib.inflateSync(Buffer.concat(idat));
-}
-console.log("Extension icons are complete PNG files.");
+console.log("Codex AGENTS.md rules are present.");

@@ -23,9 +23,16 @@ RTL ממוקד עברית עבור ChatGPT בדפדפן ועבור ChatGPT/Codex
 
 שלחו ל־Codex את [קישור הריפו](https://github.com/financialegg/chatgpt-hebrew-rtl) ובקשו ממנו: **"התקן עבורי את התמיכה המלאה בעברית וב־RTL לפי `INSTALL_FOR_CODEX.md`. בדוק את המתקין לפני ההרצה, ואל תסגור את Codex. בסיום הסבר לי איך להפעיל אותו מחדש."**
 
-ב־Windows המתקין מוסיף תוסף כתיבה ויוצר בתפריט Start קיצור דרך בשם **Codex with Hebrew RTL**. נדרשים Codex Desktop ו־Node.js 22 ומעלה; אין צורך בהרשאות מנהל.
+ב־Windows המתקין מוסיף תוסף כתיבה, מוסיף את כללי הכתיבה בעברית לקובץ ההוראות הגלובלי של Codex, ויוצר בתפריט Start קיצור דרך בשם **Codex with Hebrew RTL**. נדרשים Codex Desktop ו־Node.js 22 ומעלה; אין צורך בהרשאות מנהל.
 
 לאחר ההתקנה שמרו את העבודה, סגרו את כל חלונות Codex ופתחו **FinancialEgg → Codex with Hebrew RTL** מתפריט Start. השאירו את חלון המסוף פתוח בזמן השימוש. בדקו פסקה בעברית ושורה מעורבת, למשל `מניית NVDA עלתה ב־5.3% אחרי הדוח.`
+
+## כללי הכתיבה ב-Codex
+
+הקובץ [`codex/AGENTS.md`](codex/AGENTS.md) מכיל את 12 כללי הכתיבה בעברית, כהוראות גלובליות ל-Codex. Codex קורא אותם בכל פרויקט, מהקובץ `AGENTS.md` שבתיקיית `.codex` של המשתמש (`%USERPROFILE%\.codex\AGENTS.md` ב-Windows).
+
+- **התקנה אוטומטית:** המתקין ל-Windows מוסיף את הכללים לסוף הקובץ, פעם אחת בלבד, ושומר את כל מה שכבר היה בו.
+- **התקנה ידנית:** מעתיקים את תוכן `codex/AGENTS.md` לסוף הקובץ הגלובלי, ופותחים שיחה חדשה ב-Codex.
 
 ## יכולות
 
@@ -38,23 +45,7 @@ RTL ממוקד עברית עבור ChatGPT בדפדפן ועבור ChatGPT/Codex
 - תמיכה בתשובות שמגיעות בסטרימינג באמצעות `MutationObserver`.
 - בידוד אזור השיחה כדי לא להפוך את הניווט והסרגלים של ChatGPT.
 - שלושה מצבים: `smart`, `force`, `off`.
-- **כללי כתיבה בעברית (ChatGPT):** מגרסה 0.3.2 התוסף לא נוגע בהודעות. את הכללים מדביקים פעם אחת בהוראות המותאמות אישית של ChatGPT (Settings, Personalization, Custom Instructions), והם פועלים אוטומטית בכל שיחה. הטקסט המוכן: `docs/CUSTOM_INSTRUCTIONS_HE.txt`.
-
-## התקנת התוסף בדפדפן
-
-1. הורד או שכפל את הריפו.
-2. פתח `chrome://extensions` או `edge://extensions`.
-3. הפעל Developer mode.
-4. לחץ Load unpacked.
-5. בחר את התיקייה `browser-extension`.
-6. רענן את ChatGPT.
-7. פתח את חלון התוסף וסמן שקראת והסכמת. עד אז התוסף אינו פועל.
-
-בתפריט התוסף אפשר לבחור:
-
-- **חכם** – RTL רק כאשר התוכן דורש זאת.
-- **RTL כפוי** – כופה RTL על תוכן שיחה שאינו קוד.
-- **כבוי** – מסיר את שינויי התצוגה של התוסף.
+- **כללי כתיבה בעברית:** ב-ChatGPT דרך ההוראות המותאמות אישית (תיקיית `student-kit`), וב-Codex דרך הקובץ `codex/AGENTS.md`.
 
 ## ChatGPT/Codex במחשב
 
@@ -100,19 +91,13 @@ node desktop/launcher.mjs --mode force
 core/rtl-engine.js
 ```
 
-העותק שבתוסף נוצר ממנו:
-
-```bash
-npm run build
-```
-
 בדיקה מלאה:
 
 ```bash
 npm run verify
 ```
 
-הבדיקה כוללת בדיקת תחביר, אימות JSON, ו־16 בדיקות לכיוון עברית/אנגלית, תוכן פיננסי מעורב, מדיניות BiDi, שחזור מצב, מתגים, רענון Desktop, ובדיקה שהתוסף לא משנה את ההודעה שנשלחת.
+הבדיקה כוללת בדיקת תחביר, אימות JSON, בדיקה שקובץ הכללים ל-Codex שלם, ו־14 בדיקות לכיוון עברית/אנגלית, תוכן פיננסי מעורב, מדיניות BiDi, שחזור מצב, מתגים ורענון Desktop.
 
 ## מבנה
 
@@ -120,14 +105,10 @@ npm run verify
 chatgpt-hebrew-rtl/
 ├── core/
 │   └── rtl-engine.js
-├── browser-extension/
-│   ├── manifest.json
-│   ├── rtl-engine.js
-│   ├── writing-rules.js
-│   ├── content.js
-│   ├── styles.css
-│   ├── popup.html
-│   └── popup.js
+├── codex/
+│   └── AGENTS.md
+├── student-kit/
+│   └── hebrew-rtl-output/
 ├── desktop/
 │   └── launcher.mjs
 ├── plugins/
@@ -136,11 +117,10 @@ chatgpt-hebrew-rtl/
 │       └── skills/hebrew-rtl/SKILL.md
 ├── .agents/plugins/marketplace.json
 ├── docs/
-│   └── PRIVACY_POLICY_HE.html
+│   └── CUSTOM_INSTRUCTIONS_HE.txt
 ├── skill/
 │   └── RTL_SKILL_HE.md
 ├── scripts/
-│   ├── sync-extension.mjs
 │   ├── check.mjs
 │   └── install-windows.ps1
 ├── test/
@@ -155,9 +135,11 @@ chatgpt-hebrew-rtl/
 
 ## פרטיות
 
-תוסף הדפדפן פועל רק לאחר הסכמה, אינו שולח את תוכן השיחה לשרת חיצוני, אינו שומר אותו, ואינו משנה את ההודעות שאתה שולח. ההגדרות נשמרות מקומית באמצעות `chrome.storage.local`. ראו `PRIVACY.md` ו-`docs/PRIVACY_POLICY_HE.html`.
+הריפו כבר לא כולל תוסף לדפדפן. מנוע התצוגה ל-Codex פועל מקומית במחשב, ואינו שולח את תוכן השיחה לשום שרת. לפרטים ראו `SECURITY.md`.
 
 ## סטטוס
+
+**אחרי 0.3.2** – תוסף ה-Chrome הוצא מהריפו. נוספו כללי כתיבה גלובליים ל-Codex (`codex/AGENTS.md`), שהמתקין מוסיף פעם אחת לקובץ ההוראות הגלובלי.
 
 **v0.3.2** – הוסרה ההוספה של כללי הכתיבה להודעות. הכללים הודבקו בכל הודעה בעברית, הופיעו בבועה וחזרו בכל שיחה. עכשיו הם עוברים דרך Custom Instructions של ChatGPT, והתוסף מטפל רק בתצוגה.
 
@@ -176,12 +158,6 @@ chatgpt-hebrew-rtl/
 - הזרקה חוזרת בטוחה ב־ChatGPT/Codex Desktop אחרי רענון או ניווט.
 
 התמיכה בדסקטופ עדיין דורשת אימות מעשי מול גרסת ChatGPT/Codex המותקנת בפועל, משום שמבנה ואפשרויות ההפעלה של אפליקציות Electron יכולים להשתנות בין גרסאות.
-
-## Chrome Web Store
-
-לפרסום בחנות Chrome השתמשו בקובץ האריזה שנוצר על ידי workflow בשם `Package Chrome Web Store`.
-
-פרטי ה-listing, הרשאות, קישורי פרטיות ותמיכה נמצאים ב-`CHROME_WEB_STORE.md`, ומדיניות הפרטיות נמצאת ב-`PRIVACY.md`.
 
 ## רישיון
 

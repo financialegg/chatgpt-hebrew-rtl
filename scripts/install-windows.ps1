@@ -102,6 +102,20 @@ if (-not $SkipPlugin) {
   if ($LASTEXITCODE -ne 0) { throw "Could not install the Hebrew RTL Codex plugin." }
 }
 
+# Global Codex instructions: add the Hebrew rules once, keeping whatever the user already has.
+$codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE ".codex" }
+$agentsPath = Join-Path $codexHome "AGENTS.md"
+$rulesText = [System.IO.File]::ReadAllText((Join-Path $repoRoot "codex\AGENTS.md"))
+$existing = if (Test-Path -LiteralPath $agentsPath) { [System.IO.File]::ReadAllText($agentsPath) } else { "" }
+if ($existing -notmatch [regex]::Escape("# Global Hebrew RTL response instructions for Codex")) {
+  New-Item -ItemType Directory -Force -Path $codexHome | Out-Null
+  $separator = if ($existing.Trim()) { "`r`n`r`n---`r`n`r`n" } else { "" }
+  [System.IO.File]::AppendAllText($agentsPath, $separator + $rulesText, (New-Object System.Text.UTF8Encoding($false)))
+  Write-Host "Added the Hebrew writing rules to $agentsPath"
+} else {
+  Write-Host "Hebrew writing rules already present in $agentsPath"
+}
+
 New-Item -ItemType Directory -Force -Path (Join-Path $localRoot "core"), (Join-Path $localRoot "desktop"), $shortcutDirectory | Out-Null
 Copy-Item -LiteralPath (Join-Path $repoRoot "core\rtl-engine.js") -Destination (Join-Path $localRoot "core\rtl-engine.js") -Force
 Copy-Item -LiteralPath (Join-Path $repoRoot "desktop\launcher.mjs") -Destination (Join-Path $localRoot "desktop\launcher.mjs") -Force
