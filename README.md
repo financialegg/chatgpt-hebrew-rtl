@@ -7,6 +7,18 @@ RTL ממוקד עברית עבור ChatGPT בדפדפן ועבור ChatGPT/Codex
 1. **מנוע תצוגת RTL** שמתקן כיוון, יישור, טבלאות, קוד ושדה כתיבה.
 2. **RTL Skill** שמנחה את המודל לנסח עברית בצורה שלא נשברת כאשר משלבים טיקרים, אנגלית, אחוזים ומספרים.
 
+## לתלמידים: עברית תקינה ב-ChatGPT
+
+כל מה שצריך נמצא בתיקייה [`student-kit`](student-kit).
+
+**שלב 1: הוראות אישיות (לכולם).** ב-ChatGPT נכנסים להגדרות, התאמה אישית, הוראות מותאמות אישית (Settings, Personalization, Custom Instructions). מדביקים את כל הטקסט מהקובץ [`Hebrew_RTL_Custom_Instructions.txt`](student-kit/Hebrew_RTL_Custom_Instructions.txt), שומרים ופותחים שיחה חדשה. מעכשיו הכללים פועלים בכל שיחה, בלי להופיע בהודעות.
+
+**שלב 2: בדיקה.** שולחים בשיחה חדשה את אחת הבדיקות מהקובץ [`rtl-tests.md`](student-kit/hebrew-rtl-output/references/rtl-tests.md). משפטים צריכים לפתוח בעברית, למשל: מניית אנבידיה (NVDA) עלתה ב-5.3% אחרי הדוח.
+
+**שלב 3: משימות מתוזמנות.** בכל משימה שצריכה לכתוב בעברית, מדביקים בסוף הוראות המשימה את הטקסט מהקובץ [`scheduled-task-addon.txt`](student-kit/hebrew-rtl-output/assets/scheduled-task-addon.txt).
+
+**רשות: Skill.** אם בחשבון שלכם יש אפשרות להתקין Skills, מעלים את [`Hebrew_RTL_Skill_for_Students_v1.zip`](student-kit/Hebrew_RTL_Skill_for_Students_v1.zip). צירוף הקובץ לשיחה רגילה לא מתקין אותו. ההסבר המלא: [`README-HE.md`](student-kit/hebrew-rtl-output/README-HE.md).
+
 ## התקנה פשוטה ב־Codex למחשב
 
 שלחו ל־Codex את [קישור הריפו](https://github.com/financialegg/chatgpt-hebrew-rtl) ובקשו ממנו: **"התקן עבורי את התמיכה המלאה בעברית וב־RTL לפי `INSTALL_FOR_CODEX.md`. בדוק את המתקין לפני ההרצה, ואל תסגור את Codex. בסיום הסבר לי איך להפעיל אותו מחדש."**
