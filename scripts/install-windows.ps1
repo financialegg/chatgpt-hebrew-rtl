@@ -102,18 +102,31 @@ if (-not $SkipPlugin) {
   if ($LASTEXITCODE -ne 0) { throw "Could not install the Hebrew RTL Codex plugin." }
 }
 
-# Global Codex instructions: add the Hebrew rules once, keeping whatever the user already has.
+# Global Codex instructions: keep the user's own content, add or refresh our Hebrew rules block.
 $codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE ".codex" }
 $agentsPath = Join-Path $codexHome "AGENTS.md"
-$rulesText = [System.IO.File]::ReadAllText((Join-Path $repoRoot "codex\AGENTS.md"))
+$rulesText = [System.IO.File]::ReadAllText((Join-Path $repoRoot "codex\AGENTS.md")).Trim()
+$startMark = "<!-- hebrew-rtl:start -->"
+$endMark = "<!-- hebrew-rtl:end -->"
+$block = "$startMark`r`n$rulesText`r`n$endMark`r`n"
 $existing = if (Test-Path -LiteralPath $agentsPath) { [System.IO.File]::ReadAllText($agentsPath) } else { "" }
-if ($existing -notmatch [regex]::Escape("# Global Hebrew RTL response instructions for Codex")) {
-  New-Item -ItemType Directory -Force -Path $codexHome | Out-Null
-  $separator = if ($existing.Trim()) { "`r`n`r`n---`r`n`r`n" } else { "" }
-  [System.IO.File]::AppendAllText($agentsPath, $separator + $rulesText, (New-Object System.Text.UTF8Encoding($false)))
-  Write-Host "Added the Hebrew writing rules to $agentsPath"
+$heading = "# Global Hebrew RTL response instructions for Codex"
+$s = $existing.IndexOf($startMark); $e = $existing.IndexOf($endMark)
+if ($s -ge 0 -and $e -gt $s) {
+  $updated = $existing.Substring(0, $s) + $block + $existing.Substring($e + $endMark.Length).TrimStart("`r", "`n")
+} elseif ($existing.IndexOf($heading) -ge 0) {
+  # ponytail: an unmarked block came from the first installer, which always appended it last, so it runs to the end of the file
+  $updated = $existing.Substring(0, $existing.IndexOf($heading)) + $block
 } else {
-  Write-Host "Hebrew writing rules already present in $agentsPath"
+  $separator = if ($existing.Trim()) { "`r`n`r`n---`r`n`r`n" } else { "" }
+  $updated = $existing + $separator + $block
+}
+if ($updated -ne $existing) {
+  New-Item -ItemType Directory -Force -Path $codexHome | Out-Null
+  [System.IO.File]::WriteAllText($agentsPath, $updated, (New-Object System.Text.UTF8Encoding($false)))
+  Write-Host "Hebrew writing rules installed in $agentsPath"
+} else {
+  Write-Host "Hebrew writing rules already up to date in $agentsPath"
 }
 
 New-Item -ItemType Directory -Force -Path (Join-Path $localRoot "core"), (Join-Path $localRoot "desktop"), $shortcutDirectory | Out-Null

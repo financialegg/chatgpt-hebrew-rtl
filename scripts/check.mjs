@@ -57,3 +57,8 @@ if (!agents.includes("# Global Hebrew RTL response instructions for Codex") || !
   throw new Error("codex/AGENTS.md is missing its heading or rules.");
 }
 console.log("Codex AGENTS.md rules are present.");
+
+const ciRules = fs.readFileSync(path.join(root, "student-kit/Hebrew_RTL_Custom_Instructions.txt"), "utf8").replace(/\r\n/g, "\n").trim();
+const readme = fs.readFileSync(path.join(root, "README.md"), "utf8").replace(/\r\n/g, "\n");
+if (readme.split(ciRules).length < 3) throw new Error("README must contain the student-kit rules in both the test message and the rules block.");
+console.log("README carries the current ChatGPT rules.");
