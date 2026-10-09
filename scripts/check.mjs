@@ -65,10 +65,10 @@ console.log("README carries the current ChatGPT rules.");
 
 // Guard against mixed student instructions after future updates.
 for (const rel of ["docs/CUSTOM_INSTRUCTIONS_HE.txt", "student-kit/hebrew-rtl-output/assets/custom-instructions.txt"]) {
-  const copy = fs.readFileSync(path.join(root, rel), "utf8").replace(/\\r\\n/g, "\\n").trim();
+  const copy = fs.readFileSync(path.join(root, rel), "utf8").replace(/\r\n/g, "\\n").trim();
   if (copy !== ciRules) throw new Error(`Out-of-sync student instructions: ${rel}`);
 }
-if (ciRules.length > 1500 || (ciRules.match(/^כלל (\\d+):/gm) || []).length !== 12) {
+if (ciRules.length > 1500 || (ciRules.match(/^כלל (\d+):/gm) || []).length !== 12) {
   throw new Error("ChatGPT personal instructions must have 12 rules and fit within 1500 characters.");
 }
 if (!agents.includes(ciRules)) throw new Error("Codex AGENTS.md must embed the current 12 common rules.");
