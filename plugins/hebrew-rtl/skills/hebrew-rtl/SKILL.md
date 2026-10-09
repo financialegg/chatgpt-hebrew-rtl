@@ -9,6 +9,7 @@ Use this skill whenever the user writes in Hebrew or requests Hebrew content.
 
 ## Writing rules
 
+- Rewrite English-source prose into natural Hebrew word order rather than retaining English sentence structure. For financial reporting prefer company in Hebrew, event, figure, then implication. Split sentences dense with English names, percentages, tickers or dates; preserve all facts and numbers.
 - Write the sentence in Hebrew first. Avoid starting a Hebrew sentence with a ticker, English word, number, or punctuation when a natural Hebrew opening is available.
 - Keep English names, tickers, percentages, dates, prices, and abbreviations as compact LTR islands. Prefer inline code for tickers, formulas, commands, and other technical tokens when that improves readability.
 - Keep code, commands, formulas, and URLs in LTR formatting. Link descriptive Hebrew text instead of pasting a raw URL into the middle of a Hebrew sentence.

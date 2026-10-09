@@ -62,3 +62,21 @@ const ciRules = fs.readFileSync(path.join(root, "student-kit/Hebrew_RTL_Custom_I
 const readme = fs.readFileSync(path.join(root, "README.md"), "utf8").replace(/\r\n/g, "\n");
 if (readme.split(ciRules).length < 3) throw new Error("README must contain the student-kit rules in both the test message and the rules block.");
 console.log("README carries the current ChatGPT rules.");
+
+// Guard against mixed student instructions after future updates.
+for (const rel of ["docs/CUSTOM_INSTRUCTIONS_HE.txt", "student-kit/hebrew-rtl-output/assets/custom-instructions.txt"]) {
+  const copy = fs.readFileSync(path.join(root, rel), "utf8").replace(/\\r\\n/g, "\\n").trim();
+  if (copy !== ciRules) throw new Error(`Out-of-sync student instructions: ${rel}`);
+}
+if (ciRules.length > 1500 || (ciRules.match(/^כלל (\\d+):/gm) || []).length !== 12) {
+  throw new Error("ChatGPT personal instructions must have 12 rules and fit within 1500 characters.");
+}
+if (!agents.includes(ciRules)) throw new Error("Codex AGENTS.md must embed the current 12 common rules.");
+if (!readme.includes("Personalization") || !readme.includes("Custom Instructions") || !readme.includes("23 בדיקות")) {
+  throw new Error("README must explain Personalization and the updated RTL tests.");
+}
+const rtlTests = fs.readFileSync(path.join(root, "student-kit/hebrew-rtl-output/references/rtl-tests.md"), "utf8");
+if (!rtlTests.includes("בדיקה 23") || !rtlTests.includes("לייב ניישן")) {
+  throw new Error("Mixed-language financial stress tests are missing.");
+}
+console.log("Student instructions, Codex rules, onboarding, and 23 RTL tests are synchronized.");
