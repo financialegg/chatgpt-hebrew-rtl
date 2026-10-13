@@ -93,3 +93,14 @@ if (readme.includes("Download ZIP") || readme.includes("npm run desktop") || rea
   throw new Error("README must not direct users to install Codex display injectors.");
 }
 console.log("Codex setup is instructions-only; no additional installer required.");
+
+// Codex onboarding must ALWAYS show all 18 rules, even when AGENTS.md is writable.
+for (const [name, content] of [["README.md", readme], ["INSTALL_FOR_CODEX.md", codexGuide]]) {
+  if (!content.includes("כל 18 החוקים במלואם") || !content.includes("בלוק קוד אחד") || !content.includes("גם אם")) {
+    throw new Error(`Codex onboarding must show all 18 writing rules unconditionally: ${name}`);
+  }
+}
+if (!codexGuide.includes("החוקים נשמרו בקובץ") || !codexGuide.includes("החוקים הוצגו להעתקה ידנית")) {
+  throw new Error("Codex guide must report whether AGENTS.md was actually saved.");
+}
+console.log("Codex onboarding always provides the full rules and honest save status.");
