@@ -65,7 +65,7 @@ console.log("README carries the current ChatGPT rules.");
 
 // Guard against mixed student instructions after future updates.
 for (const rel of ["docs/CUSTOM_INSTRUCTIONS_HE.txt", "student-kit/hebrew-rtl-output/assets/custom-instructions.txt"]) {
-  const copy = fs.readFileSync(path.join(root, rel), "utf8").replace(/\r\n/g, "\\n").trim();
+  const copy = fs.readFileSync(path.join(root, rel), "utf8").replace(/\r\n/g, "\n").trim();
   if (copy !== ciRules) throw new Error(`Out-of-sync student instructions: ${rel}`);
 }
 if (ciRules.length > 1500 || (ciRules.match(/^כלל (\d+):/gm) || []).length !== 12) {
@@ -104,3 +104,21 @@ if (!codexGuide.includes("החוקים נשמרו בקובץ") || !codexGuide.in
   throw new Error("Codex guide must report whether AGENTS.md was actually saved.");
 }
 console.log("Codex onboarding always provides the full rules and honest save status.");
+
+// Mixed RTL/LTR line openings must be handled in the FIRST response.
+const fullRules = fs.readFileSync(path.join(root, "student-kit/hebrew-rtl-output/references/full-rules.md"), "utf8");
+const tests = fs.readFileSync(path.join(root, "student-kit/hebrew-rtl-output/references/rtl-tests.md"), "utf8");
+const codexSkill = fs.readFileSync(path.join(root, "plugins/hebrew-rtl/skills/hebrew-rtl/SKILL.md"), "utf8");
+if (!ciRules.includes("התשובה הראשונה") || !ciRules.includes("RLM (U+200F)") || !ciRules.includes("מתחיל באנגלית")) {
+  throw new Error("ChatGPT must cover English-first mixed paragraphs from the first answer.");
+}
+if (!agents.includes("כלל 18:") || !agents.includes("RLM (U+200F)") || !fullRules.includes(ciRules)) {
+  throw new Error("Codex and full-rules guidance must contain the synchronized direction rules.");
+}
+if (!tests.includes("תנאי קבלה לשיחה חדשה") || !tests.includes("NVIDIA") || !tests.includes("AMD")) {
+  throw new Error("RTL tests must cover English-first and ticker-first paragraphs.");
+}
+if (!codexSkill.includes("first response") || !readme.includes("תשובה הראשונה")) {
+  throw new Error("README and Codex skill must explicitly cover the first response.");
+}
+console.log("First-response, English-first/ticker-first RTL guidance and tests present.");
