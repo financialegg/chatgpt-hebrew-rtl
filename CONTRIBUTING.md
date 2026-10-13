@@ -1,9 +1,11 @@
-# Contributing
+# תרומה לפרויקט
 
-1. Create a branch.
-2. Make changes in `core/rtl-engine.js`.
-3. Run `npm run build` to sync the browser copy.
-4. Run `npm run verify`.
-5. Open a pull request with a reproducible RTL example.
+תהליך ההגדרה הנתמך מבוסס **על הוראות כתיבה בלבד**: 12 כללים בהוראות האישיות של ChatGPT ו-18 כללים בקובץ `AGENTS.md` הגלובלי של Codex.
 
-When reporting an RTL bug, include the smallest text sample that reproduces the problem and say whether it occurs in ChatGPT web, ChatGPT desktop, Codex, or more than one surface.
+1. צרו ענף חדש.
+2. בצעו שינויים בקובצי ההוראות הרלוונטיים ושמרו על התאמה בין העותקים.
+3. אם שיניתם כללים ל-ChatGPT, עדכנו גם את שתי ההופעות שלהם בקובץ `README.md`.
+4. הריצו `npm run verify` כדי לבדוק עקביות (למפתחי המאגר בלבד).
+5. פתחו בקשת מיזוג עם דוגמה לשיבוש ולניסוח המתוקן.
+
+אין להוסיף למסלול ההגדרה הרגיל הוראות להתקנת תוספים, מנועי RTL או סקריפטים ב-Codex. אין צורך בתוכנות נוספות כדי להשתמש בכללי הכתיבה.

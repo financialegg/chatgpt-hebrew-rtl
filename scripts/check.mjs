@@ -81,17 +81,15 @@ if (!rtlTests.includes("בדיקה 23") || !rtlTests.includes("לייב נייש
 }
 console.log("Student instructions, Codex rules, onboarding, and 23 RTL tests are synchronized.");
 
-// Windows installation must offer a route outside a sandboxed Codex session.
-const installCmd = fs.readFileSync(path.join(root, "Install.cmd"), "utf8");
-const installPs = fs.readFileSync(path.join(root, "scripts/install-windows.ps1"), "utf8");
-const installDoc = fs.readFileSync(path.join(root, "INSTALL_FOR_CODEX.md"), "utf8");
-if (!installCmd.includes('install-windows.ps1') || !installCmd.includes('powershell.exe')) {
-  throw new Error("Windows entrypoint Install.cmd is missing its installer invocation.");
+// Codex onboarding is instructions-only; do not reintroduce installer prompts.
+const codexGuide = fs.readFileSync(path.join(root, "INSTALL_FOR_CODEX.md"), "utf8");
+if (!codexGuide.includes("18 הכללים") || !codexGuide.includes("codex/AGENTS.md")) {
+  throw new Error("Codex guide must link the 18 global writing rules.");
 }
-if (!installPs.includes('Assert-WritableDirectory') || !installPs.includes('OPTIONAL PLUGIN NOT INSTALLED') || !installPs.includes('INSTALLATION STATUS:')) {
-  throw new Error("Windows installer must handle sandbox write access and partial plugin installation.");
+if (!readme.includes("כללי כתיבה בלבד") || !codexGuide.includes("אל תנסה לעקוף הרשאות")) {
+  throw new Error("Codex onboarding must remain rules-only.");
 }
-if (!installDoc.includes('AppData') || !installDoc.includes('Install.cmd') || !readme.includes('Install.cmd')) {
-  throw new Error("Windows installation documentation must explain sandbox fallback.");
+if (readme.includes("Download ZIP") || readme.includes("npm run desktop") || readme.includes("Install.cmd")) {
+  throw new Error("README must not direct users to install Codex display injectors.");
 }
-console.log("Windows installer entrypoint and sandbox recovery instructions are present.");
+console.log("Codex setup is instructions-only; no additional installer required.");
