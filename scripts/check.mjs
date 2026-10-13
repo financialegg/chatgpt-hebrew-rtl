@@ -80,3 +80,18 @@ if (!rtlTests.includes("בדיקה 23") || !rtlTests.includes("לייב נייש
   throw new Error("Mixed-language financial stress tests are missing.");
 }
 console.log("Student instructions, Codex rules, onboarding, and 23 RTL tests are synchronized.");
+
+// Windows installation must offer a route outside a sandboxed Codex session.
+const installCmd = fs.readFileSync(path.join(root, "Install.cmd"), "utf8");
+const installPs = fs.readFileSync(path.join(root, "scripts/install-windows.ps1"), "utf8");
+const installDoc = fs.readFileSync(path.join(root, "INSTALL_FOR_CODEX.md"), "utf8");
+if (!installCmd.includes('install-windows.ps1') || !installCmd.includes('powershell.exe')) {
+  throw new Error("Windows entrypoint Install.cmd is missing its installer invocation.");
+}
+if (!installPs.includes('Assert-WritableDirectory') || !installPs.includes('OPTIONAL PLUGIN NOT INSTALLED') || !installPs.includes('INSTALLATION STATUS:')) {
+  throw new Error("Windows installer must handle sandbox write access and partial plugin installation.");
+}
+if (!installDoc.includes('AppData') || !installDoc.includes('Install.cmd') || !readme.includes('Install.cmd')) {
+  throw new Error("Windows installation documentation must explain sandbox fallback.");
+}
+console.log("Windows installer entrypoint and sandbox recovery instructions are present.");

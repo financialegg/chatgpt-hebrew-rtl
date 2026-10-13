@@ -29,8 +29,11 @@ function Find-CodexCli {
       Select-Object -First 1 -ExpandProperty FullName
     if ($found) { return $found }
   }
-  $command = Get-Command "codex.exe" -ErrorAction SilentlyContinue
-  if ($command -and (Test-Path -LiteralPath $command.Source -PathType Leaf)) { return $command.Source }
+  # Codex CLI may be installed as a native executable or a Node/npm .cmd shim.
+  $command = Get-Command -Name @("codex.exe", "codex.cmd", "codex") -ErrorAction SilentlyContinue |
+    Where-Object { $_.Source -and (Test-Path -LiteralPath $_.Source -PathType Leaf) } |
+    Select-Object -First 1
+  if ($command) { return $command.Source }
 }
 
 function Find-CodexApp {
@@ -79,31 +82,70 @@ function Find-Node {
   return (Resolve-Path -LiteralPath $nodePath).Path
 }
 
-$codexCli = $null
-if (-not $SkipPlugin) {
-  $codexCli = Find-CodexCli
-  if (-not $codexCli) {
-    throw "Codex CLI was not found under %LOCALAPPDATA%\OpenAI\Codex\bin. Install Codex CLI or run this from a Codex installation that includes the CLI."
+# Every write target is outside many Codex sandbox workspaces. Probe before making
+# changes, so a permission error gives a useful recovery path rather than a half-install.
+function Assert-WritableDirectory {
+  param([Parameter(Mandatory=$true)][string]$Directory)
+  $probePath = $null
+  try {
+    New-Item -ItemType Directory -Force -Path $Directory | Out-Null
+    $probePath = Join-Path $Directory (".hebrew-rtl-test-" + [guid]::NewGuid().ToString("N"))
+    [System.IO.File]::WriteAllText($probePath, "ok")
+  } catch {
+    throw "Cannot write to $Directory. Codex's sandbox or your Windows permissions may block this installer. Run Install.cmd from an extracted GitHub ZIP in Windows Explorer, OUTSIDE the Codex chat; do not run as administrator or disable security protections. Original error: $($_.Exception.Message)"
+  } finally {
+    if ($probePath -and (Test-Path -LiteralPath $probePath)) {
+      Remove-Item -LiteralPath $probePath -Force -ErrorAction SilentlyContinue
+    }
   }
 }
+
+$codexCli = $null
+if (-not $SkipPlugin) { $codexCli = Find-CodexCli }
 
 $nodeExe = Find-Node
 $codexExe = Find-CodexApp
 if (-not $nodeExe) { throw "Node.js 22 or later is required. Install the current Node.js LTS, then run this installer again." }
 if (-not $codexExe) { throw "Could not find the Codex desktop app. Install Codex Desktop, then run this installer again." }
 
+$codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE ".codex" }
+Assert-WritableDirectory -Directory $codexHome
+Assert-WritableDirectory -Directory $localRoot
+Assert-WritableDirectory -Directory $shortcutDirectory
+
+# The Codex plugin is optional. If its CLI/cache is missing or blocked, the
+# globally installed AGENTS.md and the desktop RTL launcher still work.
+$pluginInstalled = $false
 if (-not $SkipPlugin) {
-  & $codexCli plugin marketplace add "financialegg/chatgpt-hebrew-rtl"
-  if ($LASTEXITCODE -ne 0) {
-    & $codexCli plugin marketplace upgrade "financialegg-hebrew-rtl"
-    if ($LASTEXITCODE -ne 0) { throw "Could not add or update the Hebrew RTL plugin marketplace." }
+  if ($codexCli) {
+    Write-Host "Trying Codex plugin installation..."
+    $oldErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+      & $codexCli plugin marketplace add "financialegg/chatgpt-hebrew-rtl"
+      $marketplaceExit = $LASTEXITCODE
+      if ($marketplaceExit -ne 0) {
+        & $codexCli plugin marketplace upgrade "financialegg-hebrew-rtl"
+        $marketplaceExit = $LASTEXITCODE
+      }
+      if ($marketplaceExit -eq 0) {
+        & $codexCli plugin add "hebrew-rtl@financialegg-hebrew-rtl"
+        $pluginInstalled = ($LASTEXITCODE -eq 0)
+      }
+    } catch {
+      Write-Warning "Codex plugin step returned an error: $($_.Exception.Message)"
+    } finally {
+      $ErrorActionPreference = $oldErrorActionPreference
+    }
   }
-  & $codexCli plugin add "hebrew-rtl@financialegg-hebrew-rtl"
-  if ($LASTEXITCODE -ne 0) { throw "Could not install the Hebrew RTL Codex plugin." }
+  if (-not $pluginInstalled) {
+    Write-Warning "OPTIONAL PLUGIN NOT INSTALLED. Continuing with global AGENTS.md writing rules and the desktop RTL launcher. Do not describe this as a full plugin installation."
+  }
+} else {
+  Write-Host "Codex plugin installation intentionally skipped (-SkipPlugin)."
 }
 
 # Global Codex instructions: keep the user's own content, add or refresh our Hebrew rules block.
-$codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE ".codex" }
 $agentsPath = Join-Path $codexHome "AGENTS.md"
 $rulesText = [System.IO.File]::ReadAllText((Join-Path $repoRoot "codex\AGENTS.md")).Trim()
 $startMark = "<!-- hebrew-rtl:start -->"
@@ -142,9 +184,16 @@ $shortcut.Description = "Launch Codex with Hebrew RTL display support"
 $shortcut.IconLocation = $codexExe + ",0"
 $shortcut.Save()
 
-if ($SkipPlugin) {
-  Write-Host "Created the Start menu shortcut: FinancialEgg > Codex with Hebrew RTL"
+Write-Host ""
+Write-Host "INSTALLATION STATUS:" -ForegroundColor Cyan
+Write-Host "  GLOBAL HEBREW WRITING RULES: INSTALLED (AGENTS.md)" -ForegroundColor Green
+Write-Host "  DESKTOP RTL LAUNCHER: FILES AND SHORTCUT INSTALLED (not yet active)" -ForegroundColor Green
+if ($pluginInstalled) {
+  Write-Host "  OPTIONAL CODEX PLUGIN: INSTALLED" -ForegroundColor Green
 } else {
-  Write-Host "Installed the Hebrew RTL plugin and created the Start menu shortcut: FinancialEgg > Codex with Hebrew RTL"
+  Write-Host "  OPTIONAL CODEX PLUGIN: NOT INSTALLED" -ForegroundColor Yellow
 }
-Write-Host "Close Codex completely, then launch it from that shortcut. Keep the opened console window running while you use Codex."
+Write-Host ""
+Write-Host "Save work and fully close Codex. Open Start > FinancialEgg > Codex with Hebrew RTL."
+Write-Host "Keep the launcher console open. Confirm that it reports an injected/active RTL engine; then test text in a NEW Codex chat."
+Write-Host "A successful installer exit alone does not prove that the on-screen RTL display was activated."
